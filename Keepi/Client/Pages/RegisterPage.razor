@@ -1,0 +1,87 @@
+﻿@page "/register"
+@using System.ComponentModel.DataAnnotations
+@using Keepi.Client.Repositories.Interfaces
+@inject HttpClient Http
+@inject IRegisterRepository registerRepository
+
+<h3>Register</h3>
+
+<EditForm Model="registrationModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Username: </label>
+        <InputText @bind-Value="registrationModel.Username" />
+        <ValidationMessage For="@(() => registrationModel.Username)" />
+    </div>
+    <div>
+        <label>First Name: </label>
+        <InputText @bind-Value="registrationModel.FirstName" />
+        <ValidationMessage For="@(() => registrationModel.FirstName)" />
+    </div>
+    <div>
+        <label>Last Name: </label>
+        <InputText @bind-Value="registrationModel.LastName" />
+        <ValidationMessage For="@(() => registrationModel.LastName)" />
+    </div>
+    <div>
+        <label>Password: </label>
+        <InputText @bind-Value="registrationModel.Password" type="password" />
+        <ValidationMessage For="@(() => registrationModel.Password)" />
+    </div>
+    <div>
+        <label>Email: </label>
+        <InputText @bind-Value="registrationModel.Email" />
+        <ValidationMessage For="@(() => registrationModel.Email)" />
+    </div>
+    <div>
+        <label>City: </label>
+        <InputText @bind-Value="registrationModel.City" />
+        <ValidationMessage For="@(() => registrationModel.City)" />
+    </div>
+    <div>
+        <label>Phone Number: </label>
+        <InputText @bind-Value="registrationModel.PhoneNumber" />
+        <ValidationMessage For="@(() => registrationModel.PhoneNumber)" />
+    </div>
+    <button type="submit">Register</button>
+</EditForm>
+
+@code {
+    private RegistrationModel registrationModel = new RegistrationModel();
+
+    private async Task HandleValidSubmit()
+    {
+        var response = await registerRepository.Register();
+        // var response = await Http.PostAsJsonAsync("api/register", registrationModel);
+        // if (response.IsSuccessStatusCode)
+        // {
+        //     // Handle successful registration (e.g., navigate to a login page or show a success message)
+        // }
+        // else
+        // {
+        //     // Handle registration failure (e.g., show an error message)
+        // }
+    }
+
+    public class RegistrationModel
+    {
+        [Required]
+        public string Username { get; set; }
+        [Required]
+        public string FirstName { get; set; }
+        [Required]
+        public string LastName { get; set; }
+        [Required]
+        public string Password { get; set; }
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+        [Required]
+        public string City { get; set; }
+        [Required]
+        [Phone]
+        public string PhoneNumber { get; set; }
+    }
+}
