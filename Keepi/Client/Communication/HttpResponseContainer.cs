@@ -2,14 +2,14 @@
 {
     public class HttpResponseContainer<T>
     {
-        public HttpResponseContainer(T responce, bool success, HttpResponseMessage httpResponseMessage)
+        public HttpResponseContainer(T response, bool success, HttpResponseMessage httpResponseMessage)
         {
-            Responce = responce;
+            Response = response;
             Success = success;
             HttpResponseMessage = httpResponseMessage;
         }
 
-        public T Responce { get; }
+        public T Response { get; }
 
         public bool Success { get; }
 

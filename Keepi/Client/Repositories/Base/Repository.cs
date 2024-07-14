@@ -17,18 +17,19 @@ namespace Keepi.Client.Repositories.Base
                 throw new ApplicationException(await response.GetBody());
             }
 
-            return response.Responce;
+            return response.Response;
         }
 
-        //protected async Task<List<T>> Post<T, TResponse>(string url)
-        //{
-        //    var response = await commService.Post<List<T>>(url);
-        //    if (!response.Success)
-        //    {
-        //        throw new ApplicationException(await response.GetBody());
-        //    }
+        protected async Task<TResponse> Post<T, TResponse>(string url, T data)
+        {
+            var response = await commService.Post<T, TResponse>(url, data);
+            if (!response.Success)
+            {
+                throw new ApplicationException(await response.GetBody());
+            }
 
-        //    return response.Responce;
-        //}
+            return response.Response;
+        }
+
     }
 }
