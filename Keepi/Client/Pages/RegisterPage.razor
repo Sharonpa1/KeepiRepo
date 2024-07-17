@@ -53,7 +53,7 @@
 
     private async Task HandleValidSubmit()
     {
-        var response = await registerRepository.Register();
+        var response = await registerRepository.Register(registrationModel);
         // var response = await Http.PostAsJsonAsync("api/register", registrationModel);
         // if (response.IsSuccessStatusCode)
         // {

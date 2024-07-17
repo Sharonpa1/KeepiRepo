@@ -20,9 +20,9 @@ namespace Keepi.Client.Repositories.Base
             return response.Response;
         }
 
-        protected async Task<TResponse> Post<T, TResponse>(string url, T data)
+        protected async Task<object> Post<T>(string url, T data)
         {
-            var response = await commService.Post<T, TResponse>(url, data);
+            var response = await commService.Post(url, data);
             if (!response.Success)
             {
                 throw new ApplicationException(await response.GetBody());
@@ -30,6 +30,6 @@ namespace Keepi.Client.Repositories.Base
 
             return response.Response;
         }
-
+       
     }
 }

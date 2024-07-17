@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
+using Keepi.Shared;
 
 namespace Keepi.Server.Controllers
 {
@@ -24,39 +25,45 @@ namespace Keepi.Server.Controllers
         //}
 
 
-        //[HttpPost("register")]
-        [HttpGet("register")]
+        [HttpPost("register")]
         //public async Task<IActionResult> Register([FromBody] RegistrationModel model)
-        public async Task<List<bool>> Register()
+        public async Task<List<bool>> Register([FromBody] RegistrationModel model)
         {
-            //if (ModelState.IsValid)
-            //{
-            //    // Check if username or email already exists
-            //    var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == model.Username || u.Email == model.Email);
-            //    if (existingUser != null)
-            //    {
-            //        //return BadRequest("Username or Email already exists.");
-            //        return new List<bool> { false };
-            //    }
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    // Check if username or email already exists
+                    var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == model.Username || u.Email == model.Email);
+                    if (existingUser != null)
+                    {
+                        //return BadRequest("Username or Email already exists.");
+                        return new List<bool> { false };
+                    }
 
-            //    // Create new user
-            //    var user = new User
-            //    {
-            //        Username = model.Username,
-            //        FirstName = model.FirstName,
-            //        LastName = model.LastName,
-            //        Password = model.Password, // Ideally, hash the password before storing it
-            //        Email = model.Email,
-            //        City = model.City,
-            //        PhoneNumber = model.PhoneNumber
-            //    };
+                    // Create new user
+                    var user = new User
+                    {
+                        Username = model.Username,
+                        FirstName = model.FirstName,
+                        LastName = model.LastName,
+                        Password = model.Password, // Ideally, hash the password before storing it
+                        Email = model.Email,
+                        City = model.City,
+                        PhoneNumber = model.PhoneNumber
+                    };
 
-            //    _context.Users.Add(user);
-            //    await _context.SaveChangesAsync();
+                    _context.Users.Add(user);
+                    await _context.SaveChangesAsync();
 
-                //return Ok();
-            //    return new List<bool> { true };
-            //}
+                    //return Ok();
+                    return new List<bool> { true };
+                }
+            }
+            catch (Exception)
+            {
+                return new List<bool> { false };
+            }
 
             //return BadRequest(ModelState);
             return new List<bool> { false };
@@ -64,7 +71,7 @@ namespace Keepi.Server.Controllers
     }
 
     public class RegistrationModel
-    {
+    {   
         [Required]
         public string Username { get; set; }
         [Required]
