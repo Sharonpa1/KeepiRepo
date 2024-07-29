@@ -30,6 +30,7 @@ builder.Services.AddTransient<IHttpService, HttpService>();
 builder.Services.AddScoped<IRegisterRepository, RegisterRepository>();
 builder.Services.AddScoped<ILoginRepository, LoginRepository>();
 builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
+builder.Services.AddScoped<IPostRepository, PostRepository>();
 
 
 await builder.Build().RunAsync();

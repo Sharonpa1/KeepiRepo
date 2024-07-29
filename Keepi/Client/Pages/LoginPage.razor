@@ -1,0 +1,222 @@
+﻿@page "/login"
+@using Keepi.Client.Repositories.Interfaces
+@using Keepi.Shared
+@inject IJSRuntime JS   
+@inject ILoginRepository loginRepository
+@inject NavigationManager NavManager
+
+<h3>Login</h3>
+<div>
+    <input type="email" id="email" name="email" @bind="email" required>
+    <input type="password" id="password" name="password" @bind="password" required>
+    <button @onclick=Login>Login</button>
+
+</div>
+
+@* <button @onclick="Login">Login</button> *@
+
+@code {
+    //private LoginModel user = new LoginModel();
+    private string email;
+    private string password;
+
+    private async Task Login()
+    {
+        Console.WriteLine("Email: " + email);
+        Console.WriteLine("Password: " + password);
+        List<User> response = await loginRepository.Login(email, password);
+        if (response != null && response.Count > 0)
+        {
+            Console.WriteLine("User name: " + response[0].Username);
+            // כאן תבצע את הפעולות לאימות המשתמש (נניח שזה הצליח)
+            //string userToken = "user-auth-token"; // token שהתקבל מהשרת
+
+            // שמירת ה-token ב-Local Storage
+            //await JS.InvokeVoidAsync("localStorageHelper.save", "authToken", userToken);
+            await JS.InvokeVoidAsync("localStorageHelper.save", "user", response[0]);
+            NavManager.NavigateTo("home");
+
+        }
+        //var response = await loginRepository.Test();
+
+       
+
+        // ניווט לדף הראשי או דף אחר
+        //NavigationManager.NavigateTo("/");
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@* @page "/login"
+@using Keepi.Client.Repositories.Implementation
+@using Keepi.Client.Repositories.Interfaces
+@using System.ComponentModel.DataAnnotations
+@inject HttpClient Http
+@inject ILoginRepository loginRepository *@
+
+@*
+<style>
+    .login-container {
+        display: flex;
+        height: 100vh;
+    }
+
+    .login-form {
+        flex: 1;
+        padding: 2rem;
+        background-color: white;
+    }
+
+    .image-container {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f8f8f8;
+    }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+        }
+
+    form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    label {
+        margin: 0.5rem 0 0.25rem;
+    }
+
+    input {
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 0.25rem;
+    }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    button {
+        padding: 0.75rem;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 0.25rem;
+        cursor: pointer;
+    }
+
+    a {
+        color: #4caf50;
+        text-decoration: none;
+    }
+</style>
+
+
+<div class="login-container">
+    <div class="login-form">
+        <h1>Log in</h1>
+        <form>
+            <label for="email">Email</label>
+            <input type="text" id="email" name="email" required>
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+
+            <div>
+                <label>Username: </label>
+                <InputText @bind-Value="loginModel.Email" />
+                <ValidationMessage For="@(() => loginModel.Email)" />
+            </div>
+            <div>
+                <label>Password: </label>
+                <InputText @bind-Value="loginModel.Password" type="password" />
+                <ValidationMessage For="@(() => loginModel.Password)" />
+            </div>
+
+
+            <div class="remember-me">
+                <input type="checkbox" id="remember" name="remember">
+                <label for="remember">remember me</label>
+                <a href="#">Forgot Password ?</a>
+            </div>
+
+            <button @onclick=HandleValidSubmit>Login</button>
+
+            <button type="submit" @onclick=Login>Log in</button>
+       </form>
+        <p>Don't have an account? <a href="#">Register Now</a></p>
+    </div>
+    <div class="image-container">
+        <img src="/Resources/Images/image2.jpeg" alt="Login Image">
+    </div>
+</div> *@
+
+@* @code {
+    private LoginModel loginModel = new LoginModel();
+
+    private async Task HandleValidSubmit()
+    {
+        await Task.Delay(1000);
+        Console.WriteLine("!233r2tr24t3t3!!!!!!!");
+
+        //var response = await loginRepository.Login();
+        // var response = await Http.PostAsJsonAsync("api/login", loginModel);
+        // if (response.IsSuccessStatusCode)
+        // {
+        //     // Handle successful login (e.g., navigate to a dashboard or show a success message)
+        // }
+        // else
+        // {
+        //     // Handle login failure (e.g., show an error message)
+        // }
+    }
+    private async Task OnLogin()
+    {
+        await Task.Delay(1000);
+
+        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!");
+
+        // var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        // var user = authState.User;
+
+        // if (user.Identity.IsAuthenticated)
+        // {
+        //     var userName = user.Identity.Name;
+        //     Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!");
+        //     Console.WriteLine(userName);
+        //     // ניתן לשמור את פרטי המשתמש
+        // }
+        // else
+        // {
+        //     // הטיפול במשתמש לא מחובר
+        // }
+    }
+
+
+    public class LoginModel
+    {
+        [Required]
+        public string Email { get; set; }
+        [Required]
+        public string Password { get; set; }
+    }
+} *@
