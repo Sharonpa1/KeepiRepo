@@ -1,9 +1,41 @@
 ﻿@page "/"
 
-<PageTitle>Index</PageTitle>
+<style>
+    .img{
+        border-radius: 50%;
+        width: 200px;
+        height: 200px;
+    }
+</style>
 
-<h1>Hello, world!!!!!!!</h1>
 
-Welcome to your new app.
+<table>
+    <tr>
+        <td>
+            @* <image class="img" src="/Resources/Images/image1.jpeg"></image>
+            <image class="img" src="/Resources/Images/image2.jpeg"></image>
+            <image class="img" src="/Resources/Images/image3.jpeg"></image> *@
+        </td>
+        <td>
+            <a href="login">Login</a>
+            <br />
+            <a href="register">Register</a>
+        </td>
+    </tr>
+</table>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+
+
+
+@* @code{
+
+    private void NavigateToLoginPage()
+    {
+        
+    }
+
+    private void NavigateToRegisterPage()
+    {
+        
+    }
+} *@

@@ -1,6 +1,7 @@
 ﻿using Keepi.Client.Communication;
 using Keepi.Client.Repositories.Base;
 using Keepi.Client.Repositories.Interfaces;
+using Keepi.Shared;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
 using static Keepi.Client.Pages.RegisterPage;
@@ -16,21 +17,14 @@ namespace Keepi.Client.Repositories.Implementation
             
         }
 
-        public async Task<object> Register(RegistrationModel user) =>
-             await Post<RegistrationModel>(URL + System.IO.Path.AltDirectorySeparatorChar + "register", user);
+        //public async Task<object> Register(RegistrationModel user) =>
+        //     await Post<RegistrationModel>(URL + System.IO.Path.AltDirectorySeparatorChar + "register", user);
 
-        //public async Task<List<bool>> Register2(RegistrationModel product)
-        //{
-        //    var response = await _httpClient.PostAsJsonAsync("api/products", product);
-        //    return response.IsSuccessStatusCode;
-        //}
+        //public async Task<List<User>> Register(RegistrationModel user) =>
+        //   await Get<User>($"api/Register/_register/{user}");
 
-        //public async Task<List<bool>> Register() =>
-        //    await Post<bool, HttpResponseContainer<bool>>(URL + System.IO.Path.AltDirectorySeparatorChar + "register", );
-
-
-        //public async Task<List<bool>> Test() =>
-        //     await Get<bool>(URL + System.IO.Path.AltDirectorySeparatorChar + "test");
+        public async Task<List<User>> Register(string _username, string _firstName, string _lastName, string _password, string _email, string _city, string _phoneNumber) =>
+           await Get<User>($"api/Register/_register/{_username}/{_firstName}/{_lastName}/{_password}/{_email}/{_city}/{_phoneNumber}");
     }
 
 }

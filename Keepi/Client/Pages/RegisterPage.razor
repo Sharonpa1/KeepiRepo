@@ -3,6 +3,9 @@
 @using Keepi.Client.Repositories.Interfaces
 @inject HttpClient Http
 @inject IRegisterRepository registerRepository
+@using Keepi.Shared
+@inject IJSRuntime JS
+@inject NavigationManager NavManager
 
 <h3>Register</h3>
 
@@ -51,18 +54,27 @@
 @code {
     private RegistrationModel registrationModel = new RegistrationModel();
 
+    public string Username { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Password { get; set; }
+    [EmailAddress]
+    public string Email { get; set; }
+    public string City { get; set; }
+    [Phone]
+    public string PhoneNumber { get; set; }
+
     private async Task HandleValidSubmit()
     {
-        var response = await registerRepository.Register(registrationModel);
-        // var response = await Http.PostAsJsonAsync("api/register", registrationModel);
-        // if (response.IsSuccessStatusCode)
-        // {
-        //     // Handle successful registration (e.g., navigate to a login page or show a success message)
-        // }
-        // else
-        // {
-        //     // Handle registration failure (e.g., show an error message)
-        // }
+        //var response = await registerRepository.Register(registrationModel);
+        // List<User> response = await registerRepository.Register(registrationModel);
+        // List<User> response = await registerRepository.Register(Username, FirstName, LastName, Password, Email, City, PhoneNumber);
+        List<User> response = await registerRepository.Register(registrationModel.Username, registrationModel.FirstName, registrationModel.LastName, registrationModel.Password, registrationModel.Email, registrationModel.City, registrationModel.PhoneNumber);
+        if (response != null && response.Count > 0)
+        {
+            await JS.InvokeVoidAsync("localStorageHelper.save", "user", response[0]);
+            NavManager.NavigateTo("home");
+        }
     }
 
     public class RegistrationModel
