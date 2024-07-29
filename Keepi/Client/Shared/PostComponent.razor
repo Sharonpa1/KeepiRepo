@@ -1,0 +1,108 @@
+﻿@using Keepi.Client.Repositories.Interfaces
+@using Keepi.Shared
+@inject IPostRepository postRepository
+@inject IJSRuntime JS
+@inject NavigationManager NavManager
+
+
+@if (postsList == null)
+{
+    <h6>Loading...</h6>
+}
+else if (postsList.Count == 0)
+{
+    <h6>There are no posts to display...</h6>
+}
+else
+{
+    foreach (var post in postsList)
+    {
+        <table align="center" style="border: solid black 2px; margin-bottom: 10px;">
+            @if (isEditing && post.Id == editingPostId)
+            {
+                <NewPostComponent isEditMode="true" postToEdit="@post" />
+            }
+            else
+            {
+                <tr>
+                    <td>@post.User.Username</td>
+                    <td>@post.Date.ToShortDateString()</td>
+                </tr>
+                <tr>@post.Category</tr>
+                <tr>@post.Text</tr>
+
+                @if (post.UserId == user.Id)
+                {
+                    <tr>
+                        <button style="width: 20px; height: 20px;" @onclick="()=>EditPost(post.Id)">Edit</button>
+                    </tr>
+                    <tr>
+                        <button style="width: 20px; height: 20px;" @onclick="()=>DeletePost(post.Id)">Delete</button>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <button style="width: 20px; height: 20px;" @onclick="()=>SavePostToUserCollection(post.Id)">Save</button>
+                    </tr>
+                }
+            }
+        </table>
+    }
+}
+
+@code {
+    [Parameter] public List<Post> postsList { get; set; }
+    User user;
+    private bool isEditing = false;
+    private Guid editingPostId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await JS.InvokeAsync<User>("localStorageHelper.get", "user");
+    }
+
+    private async Task DeletePost(Guid postId)
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Are you sure you want to logout?"); // Confirm
+
+        if (confirmed)
+        {
+            var response = await postRepository.DeletePost(postId);
+
+            if (response != null && response.Count > 0)
+            {
+                if (response[0])
+                    NavManager.NavigateTo(NavManager.Uri, forceLoad: true);
+            }
+            else
+            {
+                //TODO failed to delete...
+            }
+        }
+    }
+
+    private void EditPost(Guid postId)
+    {
+        isEditing = true;
+        editingPostId = postId;
+    }
+
+    private async Task SavePostToUserCollection(Guid postId)
+    {
+
+        var response = await postRepository.SavePostToUserCollection(user.Id, postId);
+
+        // if (response != null && response.Count > 0)
+        // {
+        //     if (response[0])
+        //         NavManager.NavigateTo(NavManager.Uri, forceLoad: true);
+        // }
+        // else
+        // {
+        //     //TODO failed to delete...
+        // }
+
+    }
+
+}

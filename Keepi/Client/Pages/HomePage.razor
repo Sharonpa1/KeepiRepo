@@ -1,0 +1,21 @@
+﻿@page "/home"
+@using Keepi.Client.Repositories.Interfaces
+@using Keepi.Shared
+@inject IPostRepository postRepository
+@inject IJSRuntime JS
+
+@* add search *@
+<PostComponent postsList="@_postsList"/>
+
+@code {
+    public List<Post> _postsList { get; set; }
+    User user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await JS.InvokeAsync<User>("localStorageHelper.get", "user");
+
+        var allPosts = await postRepository.GetAllPosts();
+        _postsList = allPosts.Where(p => p.UserId != user.Id).ToList();
+    }
+}
