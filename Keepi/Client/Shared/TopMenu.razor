@@ -1,0 +1,67 @@
+﻿@inject IJSRuntime JS
+@inject NavigationManager NavManager
+
+<style>
+    .nav_btn {
+        border: 0px;
+        background: transparent;
+        border-radius: 5px;
+        height: 35px;
+        width: 35px;
+        align-content: center;
+    }
+
+        .nav_btn:hover {
+            background: lightgray;
+        }
+
+        .nav_btn:active {
+            background: gray;
+        }
+
+    .btn_img {
+        width: 25px;
+        height: 25px;
+    }
+</style>
+
+
+<a class="nav_btn" href="/profile" align="left">
+    <image class="btn_img" src="/Resources/Images/user.png"></image>
+</a>
+
+<a class="nav_btn" href="/home">
+    <image class="btn_img" src="/Resources/Images/home.png"></image>
+</a>
+
+<a class="nav_btn" href="/notifications">
+    <image class="btn_img" src="/Resources/Images/bell.png"></image>
+</a>
+
+<a class="nav_btn">
+    <image class="btn_img" src="/Resources/Images/search.png"></image>
+</a>
+
+<a class="nav_btn" href="/chat">
+    <image class="btn_img" src="/Resources/Images/chat.png"></image>
+</a>
+
+<button class="nav_btn" @onclick="Logout">
+    <image class="btn_img" src="/Resources/Images/logout.png"></image>
+</button>
+
+
+@code {
+
+    private async Task Logout()
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Are you sure you want to logout?");
+
+        if (confirmed)
+        {
+            await JS.InvokeVoidAsync("localStorageHelper.remove", "user");
+            NavManager.NavigateTo("/");
+        }
+
+    }
+}
