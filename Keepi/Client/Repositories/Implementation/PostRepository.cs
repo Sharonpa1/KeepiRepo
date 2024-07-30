@@ -41,6 +41,9 @@ namespace Keepi.Client.Repositories.Implementation
         public async Task<List<bool>> SavePostToUserCollection(Guid _UserId, Guid _PostId) =>
             await Get<bool>($"api/Post/savePostToUserCollection/{_UserId}/{_PostId}");
 
+        public async Task<List<bool>> UnsavePostFromUserCollection(Guid _UserId, Guid _PostId) =>
+            await Get<bool>($"api/Post/unsavePostFromUserCollection/{_UserId}/{_PostId}");
+
          public async Task<List<Post>> GetUserSavedPosts(Guid _UserId) =>
             await Get<Post>($"api/Post/getUserSavedPosts/{_UserId}");
 

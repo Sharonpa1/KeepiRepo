@@ -226,5 +226,32 @@ namespace Keepi.Server.Controllers
             return new List<Post> { };
         }
 
+
+        [HttpGet("unsavePostFromUserCollection/{_UserId}/{_PostId}")]
+        public async Task<List<bool>> UnsavePostFromUserCollection(Guid _UserId, Guid _PostId)
+        {
+            try
+            {
+                User user = _context.Users.FirstOrDefault(u => u.Id == _UserId);
+
+                if (user != null)
+                {
+                    string[] posts_id = user.SavedPosts.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                    var filteredPosts = posts_id.Where(item => item != _PostId.ToString());
+                    user.SavedPosts = string.Join(";", filteredPosts) + ";";
+                    await _context.SaveChangesAsync();
+
+                    return new List<bool> { true };
+                }
+
+            }
+            catch (Exception)
+            {
+                return new List<bool> { false };
+            }
+
+            return new List<bool> { false };
+        }
+
     }
 }

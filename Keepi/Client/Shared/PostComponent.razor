@@ -45,6 +45,9 @@ else
                     <tr>
                         <button style="width: 20px; height: 20px;" @onclick="()=>SavePostToUserCollection(post.Id)">Save</button>
                     </tr>
+                    <tr>
+                        <button style="width: 20px; height: 20px;" @onclick="()=>UnsavePostFromUserCollection(post.Id)">Unsave</button>
+                    </tr>
                 }
             }
         </table>
@@ -92,6 +95,7 @@ else
     {
 
         var response = await postRepository.SavePostToUserCollection(user.Id, postId);
+        NavManager.NavigateTo(NavManager.Uri, forceLoad: true);
 
         // if (response != null && response.Count > 0)
         // {
@@ -102,6 +106,14 @@ else
         // {
         //     //TODO failed to delete...
         // }
+
+    }
+
+    private async Task UnsavePostFromUserCollection(Guid postId)
+    {
+
+        var response = await postRepository.UnsavePostFromUserCollection(user.Id, postId);
+        NavManager.NavigateTo(NavManager.Uri, forceLoad: true);
 
     }
 

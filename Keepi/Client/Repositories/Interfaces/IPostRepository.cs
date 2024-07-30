@@ -11,6 +11,7 @@ namespace Keepi.Client.Repositories.Interfaces
         Task<List<Post>> EditPostCategory(Guid _PostId, string _newCategory);
         Task<List<Post>> EditPostContent(Guid _PostId, string _newContent);
         Task<List<bool>> SavePostToUserCollection(Guid _UserId, Guid _PostId);
+        Task<List<bool>> UnsavePostFromUserCollection(Guid _UserId, Guid _PostId);
         Task<List<Post>> GetUserSavedPosts(Guid _UserId);
 
         //Task<List<bool>> Test();
