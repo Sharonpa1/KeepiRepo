@@ -1,0 +1,145 @@
+﻿@page "/searchProfile"
+
+@using System.Threading.Tasks
+@using Keepi.Client.Repositories.Interfaces
+@inject ISearchUserRepository searchUserRepository
+@using System.Timers
+@using Keepi.Shared
+@implements IDisposable
+
+<style>
+    .search-container {
+        margin: 20px;
+    }
+
+        .search-container input {
+            width: 300px;
+            padding: 5px;
+        }
+
+        .search-container ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 10px 0 0;
+        }
+
+        .search-container li {
+            margin: 5px 0;
+        }
+
+    .btn_img {
+        width: 25px;
+        height: 25px;
+    }
+</style>
+
+
+
+<div class="search-container">
+    <input type="text" @bind="searchQuery" placeholder="חפש שם משתמש..." />
+    <button @onclick=SearchUsers>
+        <image class="btn_img" src="/Resources/Images/search.png"></image>
+    </button>
+    <div>
+        @if (searchResults.Any())
+        {
+            @foreach (var result in searchResults)
+            {
+                <button style="width: 100px; height: 30px;" @onclick="()=>GetSelectedUser(result)">
+                    @result
+                </button>
+                <br />
+            }
+        }
+        else if (!string.IsNullOrEmpty(searchQuery))
+        {
+            <li>לא נמצאו תוצאות</li>
+        }
+    </div>
+</div>
+
+<div>
+    @if(selectedUser != null)
+    {
+        <Profile user="@selectedUser"/>
+    }
+</div>
+
+
+
+@code {
+    private string searchQuery = "";
+    private List<string> searchResults = new List<string>();
+    private User selectedUser;
+    private Timer timer;
+
+    protected override void OnInitialized()
+    {
+        // timer = new Timer(500); // קובע את המרווח ל-1000 מילישניות (1 שנייה)
+        // timer.Elapsed += OnTimerElapsed;
+        // timer.AutoReset = true; // מאפשר את הרצת הטיימר בצורה חוזרת
+        // timer.Enabled = true;   // מפעיל את הטיימר
+    }
+
+    private void OnTimerElapsed(object sender, ElapsedEventArgs e)
+    {
+        // כאן תשים את הקוד שצריך לפעול כל שנייה
+        if (!string.IsNullOrEmpty(searchQuery))
+        {
+            Console.WriteLine("))))))))))");
+            SearchUsers();
+        }
+        // לדוגמה, עדכון משתנה מקומי
+        // currentTime = DateTime.Now;
+
+        // קריאה ל-StateHasChanged כדי לעדכן את הממשק המשתמש
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+    }
+
+
+
+    private async Task GetSelectedUser(string userName)
+    {
+
+        var response = await searchUserRepository.GetUserByUserName(userName);
+        if(response != null && response.Count > 0)
+        {
+            selectedUser = response[0];
+        }
+
+    }
+
+    private async Task SearchUsers()
+    {
+        if (!string.IsNullOrEmpty(searchQuery))
+        {
+            searchResults = await searchUserRepository.SearchUsers(searchQuery);
+        }
+        else
+        {
+            searchResults.Clear();
+        }
+    }
+    // private string searchQuery = "";
+    // private List<string> searchResults = new List<string>();
+
+    // private async Task SearchUsers()
+    // {
+    //     if (!string.IsNullOrEmpty(searchQuery))
+    //     {
+    //         searchResults = await _context.Users
+    //             .Where(u => u.Username.StartsWith(searchQuery))
+    //             .Select(u => u.Username)
+    //             .ToListAsync();
+    //     }
+    //     else
+    //     {
+    //         searchResults.Clear();
+    //     }
+    // }
+}

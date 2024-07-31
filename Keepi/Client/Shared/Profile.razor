@@ -1,0 +1,203 @@
+﻿@using Keepi.Client.Repositories.Interfaces
+@using Keepi.Shared
+@inject HttpClient Http
+@inject IProfileRepository profileRepository
+@inject IPostRepository postRepository
+@inject IJSRuntime JS
+
+<style>
+    .profile-container {
+        text-align: center;
+        margin-top: 50px;
+    }
+
+    .profile-picture {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+    }
+
+    label {
+        display: block;
+        margin: 10px 0 5px;
+    }
+
+    input {
+        margin-bottom: 15px;
+        width: 200px;
+        padding: 5px;
+    }
+
+    button {
+        margin: 10px;
+        padding: 10px 20px;
+    }
+</style>
+
+@if (user == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="profile-container">
+        <h2>פרופיל משתמש</h2>
+
+        @* <img src="@user.ProfilePhoto" alt="תמונת פרופיל" class="profile-picture" /> *@
+        <img src="@ProfileImagePath" alt="תמונת פרופיל" class="profile-picture" />
+
+        @if (isEditing && editedUser != null)
+        {
+            <div>
+                <label>שם משתמש:</label>
+                <input @bind="editedUser.Username" />
+
+                <label>שם פרטי:</label>
+                <input @bind="editedUser.FirstName" />
+
+                <label>שם משפחה:</label>
+                <input @bind="editedUser.LastName" />
+
+                <button @onclick="SaveEdit">שמור</button>
+                <button @onclick="CancelEdit">בטל</button>
+            </div>
+        }
+        else
+        {
+            @if (user != null)
+            {
+                <div>
+                    <p>שם משתמש: @user.Username</p>
+                    <p>שם פרטי: @user.FirstName</p>
+                    <p>שם משפחה: @user.LastName</p>
+                    @if (isLoggedOnUser)
+                    {
+                        <button @onclick="EditProfile">ערוך</button>
+                    }
+                </div>
+            }
+        }
+    </div>
+    @if (isLoggedOnUser)
+    {
+        <div>
+            @* <button @onclick="ShowNewPost">New post</button> *@
+            <h4>New post</h4>
+            <NewPostComponent />
+        </div>
+        <div>
+            <h4>My posts</h4>
+            <PostComponent postsList="@userPosts" />
+
+        </div>
+        <div>
+            <h4>Saved posts</h4>
+            <PostComponent postsList="@userSavedPosts" />
+
+        </div>
+    }
+}
+
+@code {
+    [Parameter] public User user { get; set; }
+
+
+
+    private IBrowserFile selectedFile;
+    private string ProfileImagePath;
+    //User loggedOnUser;
+    User editedUser;
+    private bool isLoggedOnUser = false;
+    private bool isEditing = false;
+    List<Post> userPosts { get; set; }
+    List<Post> userSavedPosts { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        //loggedOnUser = await JS.InvokeAsync<User>("localStorageHelper.get", "user");
+        User loggedOnUser = await JS.InvokeAsync<User>("localStorageHelper.get", "user");
+        if (loggedOnUser.Id == user.Id)
+        {
+            isLoggedOnUser = true;
+        }
+
+        editedUser = new User(user);
+        // ProfileImagePath = await Http.GetStringAsync("https://yourserver/api/user/profileimage");
+        //ProfileImagePath = await Http.GetStringAsync("C:\\Users\\sharo\\source\\repos\\KeepiRepo\\Keepi\\Server\\API\\DefaultUserImage.png");
+        ProfileImagePath = "/Resources/Images/user.png";
+
+        //await Task.Delay(4000);
+        userPosts = await postRepository.GetPostsByUserId(user.Id);
+        userSavedPosts = await postRepository.GetUserSavedPosts(user.Id);
+
+    }
+
+    private void EditProfile()
+    {
+        isEditing = true;
+    }
+
+    private async Task SaveEdit()
+    {
+        // await JS.InvokeVoidAsync("localStorageHelper.remove", "user");
+        List<User> newUser = new List<User>();
+
+        if (user.Username != editedUser.Username)
+        {
+            newUser = await profileRepository.EditUserName(editedUser.Id, editedUser.Username);
+        }
+        if (user.FirstName != editedUser.FirstName)
+        {
+            newUser = await profileRepository.EditFirstName(editedUser.Id, editedUser.FirstName);
+        }
+        if (user.LastName != editedUser.LastName)
+        {
+            newUser = await profileRepository.EditLastName(editedUser.Id, editedUser.LastName);
+        }
+        //TODO continue other params
+        if (newUser != null && newUser.Count > 0)
+        {
+            await JS.InvokeVoidAsync("localStorageHelper.remove", "user");
+            await JS.InvokeVoidAsync("localStorageHelper.save", "user", newUser[0]);
+            user = newUser[0];
+        }
+
+        isEditing = false;
+        editedUser = new User(user);
+    }
+
+    private async Task CancelEdit()
+    {
+        isEditing = false;
+        editedUser = new User(user);
+
+        //user = await JS.InvokeAsync<User>("localStorageHelper.get", "user");
+
+        // Optionally, reload the original user data here
+    }
+
+    // private void HandleSelected(InputFileChangeEventArgs e)
+    // {
+    //     selectedFile = e.File;
+    // }
+
+    private async Task UploadFile()
+    {
+        if (selectedFile != null)
+        {
+            using var content = new MultipartFormDataContent();
+            using var fileStream = selectedFile.OpenReadStream(maxAllowedSize: 1024 * 1024 * 15);
+            using var fileContent = new StreamContent(fileStream);
+            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(selectedFile.ContentType);
+            content.Add(fileContent, "file", selectedFile.Name);
+
+            var response = await profileRepository.UploadProfileImage(content);
+            // var response = await Http.PostAsync("https://localhost:7149/api/upload_image", content);
+
+            // if (response.IsSuccessStatusCode)
+            // {
+            //     ProfileImagePath = await response.Content.ReadAsStringAsync();
+            // }
+        }
+    }
+}
