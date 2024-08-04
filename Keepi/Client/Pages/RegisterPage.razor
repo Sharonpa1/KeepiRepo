@@ -4,6 +4,8 @@
 @inject HttpClient Http
 @inject IRegisterRepository registerRepository
 @using Keepi.Shared
+@using System.Text.RegularExpressions
+@using System.Net.Mail
 @inject IJSRuntime JS
 @inject NavigationManager NavManager
 
@@ -64,6 +66,9 @@
         <input class="input" type="text" id="city" name="city" @bind="City" placeholder="City" required>
     </tr>
     <tr>
+        <input class="input" type="number" id="age" name="age" @bind="Age" placeholder="Age" required>
+    </tr>
+    <tr>
         <input class="input" type="text" id="phone" name="phone" @bind="PhoneNumber" placeholder="Phone Number" required>
     </tr>
     <tr>
@@ -80,18 +85,32 @@
     [EmailAddress]
     public string Email { get; set; }
     public string City { get; set; }
+    public string Age { get; set; }
+    // public DateOnly BirthDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
     [Phone]
     public string PhoneNumber { get; set; }
-    
+
     private async Task Register()
     {
-        if (string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(FirstName) || string.IsNullOrEmpty(LastName) || string.IsNullOrEmpty(Password) || string.IsNullOrEmpty(Email) || string.IsNullOrEmpty(City) || string.IsNullOrEmpty(PhoneNumber))
+        if (string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(FirstName) || string.IsNullOrEmpty(LastName) || string.IsNullOrEmpty(Password) || string.IsNullOrEmpty(Email) || string.IsNullOrEmpty(City) || string.IsNullOrEmpty(Age)|| string.IsNullOrEmpty(PhoneNumber))
         {
             await JS.InvokeAsync<object>("alert", "Please fill in all the fields");
             return;
         }
 
-        List<User> response = await registerRepository.Register(Username, FirstName, LastName, Password, Email, City, PhoneNumber);
+        if (!IsValidEmail(Email))
+        {
+            await JS.InvokeAsync<object>("alert", "Invalid email address");
+            return;
+        }
+
+        if (!IsValidPhoneNumber(PhoneNumber))
+        {
+            await JS.InvokeAsync<object>("alert", "Invalid phone number");
+            return;
+        }
+
+        List<User> response = await registerRepository.Register(Username, FirstName, LastName, Password, Email, City, int.Parse(Age), PhoneNumber);
         if (response == null)
         {
             await JS.InvokeAsync<object>("alert", "An errr occured while registration");
@@ -107,23 +126,23 @@
         }
     }
 
-    public class RegistrationModel
+    private bool IsValidEmail(string email)
     {
-        [Required]
-        public string Username { get; set; }
-        [Required]
-        public string FirstName { get; set; }
-        [Required]
-        public string LastName { get; set; }
-        [Required]
-        public string Password { get; set; }
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; }
-        [Required]
-        public string City { get; set; }
-        [Required]
-        [Phone]
-        public string PhoneNumber { get; set; }
+        try
+        {
+            MailAddress m = new MailAddress(email);
+
+            return true;
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
+    }
+
+    private bool IsValidPhoneNumber(string phoneNumber)
+    {
+        var phoneRegex = new Regex(@"^05\d{1}-?\d{7}$");
+        return phoneRegex.IsMatch(phoneNumber);
     }
 }

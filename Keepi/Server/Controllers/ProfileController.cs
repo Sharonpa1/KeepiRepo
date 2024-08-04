@@ -153,8 +153,8 @@ namespace Keepi.Server.Controllers
             return new List<User> { };
         }
 
-        [HttpGet("editBirthDate/{userId}/{newBirthDate}")]
-        public async Task<List<User>> EditBirthDate(Guid userId, DateTime newBirthDate)
+        [HttpGet("editBirthDate/{userId}/{newAge}")]
+        public async Task<List<User>> EditAge(Guid userId, int newAge)
         {
             if (ModelState.IsValid)
             {
@@ -162,7 +162,7 @@ namespace Keepi.Server.Controllers
 
                 if (user != null)
                 {
-                    user.BirthDate = newBirthDate;
+                    user.Age = newAge;
                     await _context.SaveChangesAsync();
                     return new List<User> { user };
                 }

@@ -36,8 +36,8 @@ namespace Keepi.Client.Repositories.Implementation
         public async Task<List<User>> EditPhoneNumber(Guid userId, string newPhoneNumber) =>
              await Get<User>($"api/Profile/editPhoneNumber/{userId}/{newPhoneNumber}");
 
-        public async Task<List<User>> EditBirthDate(Guid userId, DateTime newBirthDate) =>
-             await Get<User>($"api/Profile/editBirthDate/{userId}/{newBirthDate}");
+        public async Task<List<User>> EditAge(Guid userId, int newAge) =>
+             await Get<User>($"api/Profile/editAge/{userId}/{newAge}");
 
         public async Task<List<bool>> FollowUser(Guid _CurrentUserId, Guid _UserIdToFollow) =>
             await Get<bool>($"api/Profile/followUser/{_CurrentUserId}/{_UserIdToFollow}");

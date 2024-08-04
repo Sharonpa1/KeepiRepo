@@ -25,7 +25,8 @@ namespace Keepi.Shared
             Email = user.Email;
             City = user.City;
             PhoneNumber = user.PhoneNumber;
-            BirthDate = user.BirthDate;
+            //BirthDate = user.BirthDate;
+            Age = user.Age;
             ProfilePhoto = user.ProfilePhoto;
             Following = user.Following;
             Followers = user.Followers;
@@ -33,25 +34,7 @@ namespace Keepi.Shared
             SavedPosts = user.SavedPosts;
         }
 
-        //public User(Guid _Id, string _Username, string _FirstName, string _LastName, string _Password,
-        //            string _Email, string _City, string _PhoneNumber, DateTime _BirthDate, string _ProfilePhoto,
-        //            string _Following, string _Followers, int _WalletCount)
-        //{
-        //    Id = _Id;
-        //    Username = _Username;
-        //    FirstName = _FirstName;
-        //    LastName = _LastName;
-        //    Password = _Password;
-        //    Email = _Email;
-        //    City = _City;
-        //    PhoneNumber = _PhoneNumber;
-        //    BirthDate = _BirthDate;
-        //    ProfilePhoto = _ProfilePhoto;
-        //    Following = _Following;
-        //    Followers = _Followers;
-        //    WalletCount = _WalletCount;
-                
-        //}
+      
         public Guid Id { get; set; } = new Guid();
         public string Username { get; set; }
         public string FirstName { get; set; }
@@ -60,7 +43,8 @@ namespace Keepi.Shared
         public string Email { get; set; }
         public string City { get; set; }
         public string PhoneNumber { get; set; }
-        public DateTime BirthDate { get; set; } = DateTime.Now;
+        //public DateTime BirthDate { get; set; } = DateTime.Now;
+        public int Age { get; set; }
         public string ProfilePhoto { get; set; } = ";";
         public string Following { get; set; } = ";";
         public string Followers { get; set; } = ";";

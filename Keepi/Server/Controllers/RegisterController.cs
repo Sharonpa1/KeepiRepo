@@ -19,8 +19,8 @@ namespace Keepi.Server.Controllers
             _context = context;
         }
 
-        [HttpGet("_register/{_username}/{_firstName}/{_lastName}/{_password}/{_email}/{_city}/{_phoneNumber}")]
-        public async Task<List<User>> Register(string _username, string _firstName, string _lastName, string _password, string _email, string _city, string _phoneNumber)
+        [HttpGet("_register/{_username}/{_firstName}/{_lastName}/{_password}/{_email}/{_city}/{_age}/{_phoneNumber}")]
+        public async Task<List<User>> Register(string _username, string _firstName, string _lastName, string _password, string _email, string _city, int _age, string _phoneNumber)
         {
             try
             {
@@ -42,6 +42,7 @@ namespace Keepi.Server.Controllers
                         Password = hashedPassword,
                         Email = _email,
                         City = _city,
+                        Age = _age,
                         PhoneNumber = _phoneNumber
                     };
 

@@ -17,8 +17,8 @@ namespace Keepi.Client.Repositories.Implementation
             
         }
 
-        public async Task<List<User>> Register(string _username, string _firstName, string _lastName, string _password, string _email, string _city, string _phoneNumber) =>
-           await Get<User>($"api/Register/_register/{_username}/{_firstName}/{_lastName}/{_password}/{_email}/{_city}/{_phoneNumber}");
+        public async Task<List<User>> Register(string _username, string _firstName, string _lastName, string _password, string _email, string _city, int _age, string _phoneNumber) =>
+           await Get<User>($"api/Register/_register/{_username}/{_firstName}/{_lastName}/{_password}/{_email}/{_city}/{_age}/{_phoneNumber}");
     }
 
 }
