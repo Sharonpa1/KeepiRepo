@@ -11,7 +11,7 @@
 
 <style>
     .input {
-        width: 400px;
+        width: 250px;
         height: 60px;
         border-radius: 10px;
         margin-top: 20px;
@@ -26,55 +26,78 @@
     }
 
     .registerBtn {
-        width: 400px;
+        width: 500px;
         height: 50px;
         border-radius: 10px;
         font-size: 20px;
         font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-        background: #8FCCBA;
+        background: #D169CC;
         border: none;
         margin-top: 20px;
         margin-bottom: 20px;
     }
 
         .registerBtn:active {
-            background: #DBF5EA;
+            background: #EEC4EA;
         }
 </style>
 
+<div style="margin-top: -70px;">
+    <table>
+        <tr>
+            <td>
+                <image class="img" src="/Resources/Images/image6.jpeg" style="margin-left: -20px; margin-top: 40px;"></image>
+            </td>
+            <td>
+                <table style ="margin-left: 100px;">
+                    <tr>
+                        <h1 class="header">Register</h1>
+                    </tr>
+                    <tr>
+                        <table>
+                            <tr>
+                                <td>
+                                    <input class="input" type="text" id="userName" name="userName" @bind="Username" placeholder="User Name" required>
+                                </td>
+                                <td>
+                                    <input class="input" type="email" id="email" name="email" @bind="Email" placeholder="Email" required>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input class="input" type="text" id="firstName" name="firstName" @bind="FirstName" placeholder="First Name" required>
+                                </td>
+                                <td>
+                                    <input class="input" type="text" id="lastName" name="lastName" @bind="LastName" placeholder="Last Name" required>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input class="input" type="password" id="password" name="password" @bind="Password" placeholder="Password" required>
+                                </td>
+                                <td>
+                                    <input class="input" type="text" id="city" name="city" @bind="City" placeholder="City" required>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input class="input" type="number" id="age" name="age" @bind="Age" placeholder="Age" required>
+                                </td>
+                                <td>
+                                    <input class="input" type="text" id="phone" name="phone" @bind="PhoneNumber" placeholder="Phone Number" required>
+                                </td>
+                            </tr>
+                        </table>
+                    </tr>
+                    <tr>
+                        <button class="registerBtn" @onclick=Register>REGISTER</button>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
 
-<table style="margin-left: auto; margin-right: auto;">
-    <tr>
-        <h1 class="header">Register</h1>
-    </tr>
-    <tr>
-        <input class="input" type="text" id="userName" name="userName" @bind="Username" placeholder="User Name" required>
-    </tr>
-    <tr>
-        <input class="input" type="text" id="firstName" name="firstName" @bind="FirstName" placeholder="First Name" required>
-    </tr>
-    <tr>
-        <input class="input" type="text" id="lastName" name="lastName" @bind="LastName" placeholder="Last Name" required>
-    </tr>
-    <tr>
-        <input class="input" type="password" id="password" name="password" @bind="Password" placeholder="Password" required>
-    </tr>
-    <tr>
-        <input class="input" type="email" id="email" name="email" @bind="Email" placeholder="Email" required>
-    </tr>
-    <tr>
-        <input class="input" type="text" id="city" name="city" @bind="City" placeholder="City" required>
-    </tr>
-    <tr>
-        <input class="input" type="number" id="age" name="age" @bind="Age" placeholder="Age" required>
-    </tr>
-    <tr>
-        <input class="input" type="text" id="phone" name="phone" @bind="PhoneNumber" placeholder="Phone Number" required>
-    </tr>
-    <tr>
-        <button class="registerBtn" @onclick=Register>REGISTER</button>
-    </tr>
-</table>
 
 
 @code {
