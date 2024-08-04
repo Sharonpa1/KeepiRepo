@@ -32,12 +32,14 @@ namespace Keepi.Server.Controllers
                         return new List<User> { };
                     }
 
+                    string hashedPassword = BCrypt.Net.BCrypt.HashPassword(_password);
+
                     var user = new User
                     {
                         Username = _username,
                         FirstName = _firstName,
                         LastName = _lastName,
-                        Password = _password, // Ideally, hash the password before storing it
+                        Password = hashedPassword,
                         Email = _email,
                         City = _city,
                         PhoneNumber = _phoneNumber

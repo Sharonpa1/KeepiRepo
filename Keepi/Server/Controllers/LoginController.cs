@@ -24,16 +24,25 @@ namespace Keepi.Server.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    User user = await _context.Users.FirstOrDefaultAsync(u => u.Username == _userName && u.Password == _password);
+                    User user = await _context.Users.FirstOrDefaultAsync(u => u.Username == _userName);
 
                     if (user != null)
                     {
-                        // Successful login
-                        return new List<User> { user };
+                        bool isPasswordCorrect = BCrypt.Net.BCrypt.Verify(_password, user.Password);
+                        if (isPasswordCorrect)
+                        {
+                            // Successfull login
+                            return new List<User> { user };
+                        }
+                        else
+                        {
+                            // Invalid password
+                            return new List<User> { };
+                        }
                     }
                     else
                     {
-                        // Invalid username or password
+                        // Invalid username
                         return new List<User> { };
                     }
                 }
