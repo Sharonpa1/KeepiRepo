@@ -39,8 +39,12 @@ namespace Keepi.Client.Repositories.Implementation
         public async Task<List<User>> EditBirthDate(Guid userId, DateTime newBirthDate) =>
              await Get<User>($"api/Profile/editBirthDate/{userId}/{newBirthDate}");
 
-        //public async Task<List<bool>> Test() =>
-        //    await Get<bool>(URL + System.IO.Path.AltDirectorySeparatorChar + "test");
+        public async Task<List<bool>> FollowUser(Guid _CurrentUserId, Guid _UserIdToFollow) =>
+            await Get<bool>($"api/Profile/followUser/{_CurrentUserId}/{_UserIdToFollow}");
+
+        public async Task<List<bool>> UnFollowUser(Guid _CurrentUserId, Guid _UserIdToUnFollow) =>
+            await Get<bool>($"api/Profile/unFollowUser/{_CurrentUserId}/{_UserIdToUnFollow}");
+
     }
 
 }

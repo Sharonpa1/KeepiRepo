@@ -45,6 +45,17 @@ else
 
         @* <img src="@user.ProfilePhoto" alt="תמונת פרופיל" class="profile-picture" /> *@
         <img src="@ProfileImagePath" alt="תמונת פרופיל" class="profile-picture" />
+        @if (!isLoggedOnUser)
+        {
+            @if (isFollowedByLoggedOnUser)
+            {
+                <button @onclick="UnFollowUser">UnFollow</button>
+            }
+            else
+            {
+                <button @onclick="FollowUser">Follow</button>
+            }
+        }
 
         @if (isEditing && editedUser != null)
         {
@@ -107,15 +118,25 @@ else
     private string ProfileImagePath;
     //User loggedOnUser;
     User editedUser;
+    User loggedOnUser;
     private bool isLoggedOnUser = false;
     private bool isEditing = false;
     List<Post> userPosts { get; set; }
     List<Post> userSavedPosts { get; set; }
+    private bool isFollowedByLoggedOnUser = false;
 
     protected override async Task OnInitializedAsync()
     {
         //loggedOnUser = await JS.InvokeAsync<User>("localStorageHelper.get", "user");
-        User loggedOnUser = await JS.InvokeAsync<User>("localStorageHelper.get", "user");
+        loggedOnUser = await JS.InvokeAsync<User>("localStorageHelper.get", "user");
+        if (loggedOnUser != null)
+        {
+            string[] followingList = loggedOnUser.Following.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+            isFollowedByLoggedOnUser = followingList.Contains(user.Id.ToString());
+
+        }
+
         if (loggedOnUser.Id == user.Id)
         {
             isLoggedOnUser = true;
@@ -198,6 +219,24 @@ else
             // {
             //     ProfileImagePath = await response.Content.ReadAsStringAsync();
             // }
+        }
+    }
+
+    private async Task FollowUser()
+    {
+        var response = await profileRepository.FollowUser(loggedOnUser.Id, user.Id);
+        if (response != null && response[0])
+        {
+            isFollowedByLoggedOnUser = true;
+        }
+    }
+
+    private async Task UnFollowUser()
+    {
+        var response = await profileRepository.UnFollowUser(loggedOnUser.Id, user.Id);
+        if (response != null && response[0])
+        {
+            isFollowedByLoggedOnUser = false;
         }
     }
 }

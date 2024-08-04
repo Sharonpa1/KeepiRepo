@@ -16,6 +16,8 @@ namespace Keepi.Client.Repositories.Interfaces
         Task<List<User>> EditCity(Guid userId, string newCity);
         Task<List<User>> EditPhoneNumber(Guid userId, string newPhoneNumber);
         Task<List<User>> EditBirthDate(Guid userId, DateTime newBirthDate);
+        Task<List<bool>> FollowUser(Guid _CurrentUserId, Guid _UserIdToFollow);
+        Task<List<bool>> UnFollowUser(Guid _CurrentUserId, Guid _UserIdToFollow);
 
     }
 }

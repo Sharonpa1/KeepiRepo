@@ -170,7 +170,64 @@ namespace Keepi.Server.Controllers
             return new List<User> { };
         }
 
+        [HttpGet("followUser/{_CurrentUserId}/{_UserIdToFollow}")]
+        public async Task<List<bool>> FollowUser(Guid _CurrentUserId, Guid _UserIdToFollow)
+        {
+            try
+            {
+                User CurrentUser = _context.Users.FirstOrDefault(u => u.Id == _CurrentUserId);
+                User UserToFollow = _context.Users.FirstOrDefault(u => u.Id == _UserIdToFollow);
 
+                if (CurrentUser != null && UserToFollow != null)
+                {
+                    CurrentUser.Following += _UserIdToFollow + ";";
+                    UserToFollow.Followers += _CurrentUserId + ";";
+                    await _context.SaveChangesAsync();
+
+                    return new List<bool> { true };
+                }
+
+            }
+            catch (Exception)
+            {
+                return new List<bool> { false };
+            }
+
+            return new List<bool> { false };
+        }
+
+        [HttpGet("unFollowUser/{_CurrentUserId}/{_UserIdToUnFollow}")]
+        public async Task<List<bool>> UnFollowUser(Guid _CurrentUserId, Guid _UserIdToUnFollow)
+        {
+            try
+            {
+                User CurrentUser = _context.Users.FirstOrDefault(u => u.Id == _CurrentUserId);
+                User UserToUnFollow = _context.Users.FirstOrDefault(u => u.Id == _UserIdToUnFollow);
+
+                if (CurrentUser != null && UserToUnFollow != null)
+                {
+                    string[] currentUser_followingList = CurrentUser.Following.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                    var filteredFollowingList = currentUser_followingList.Where(item => item != _UserIdToUnFollow.ToString());
+                    CurrentUser.Following = string.Join(";", filteredFollowingList) + ";";
+
+                    string[] userToUnfollow_followersList = UserToUnFollow.Followers.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                    var filteredFollowersList = userToUnfollow_followersList.Where(item => item != _CurrentUserId.ToString());
+                    UserToUnFollow.Followers = string.Join(";", filteredFollowersList) + ";";
+
+
+                    await _context.SaveChangesAsync();
+
+                    return new List<bool> { true };
+                }
+
+            }
+            catch (Exception)
+            {
+                return new List<bool> { false };
+            }
+
+            return new List<bool> { false };
+        }
 
         //[HttpPost("upload_image")]
         //public async Task<List<bool>> UploadProfileImage([FromForm] MultipartFormDataContent content)

@@ -61,10 +61,10 @@ namespace Keepi.Shared
         public string City { get; set; }
         public string PhoneNumber { get; set; }
         public DateTime BirthDate { get; set; } = DateTime.Now;
-        public string ProfilePhoto { get; set; } = "aaa";
-        public string Following { get; set; } = "Following list";
-        public string Followers { get; set; } = "Followers list";
+        public string ProfilePhoto { get; set; } = ";";
+        public string Following { get; set; } = ";";
+        public string Followers { get; set; } = ";";
         public int WalletCount { get; set; } = 100;
-        public string SavedPosts { get; set; } = "";
+        public string SavedPosts { get; set; } = ";";
     }
 }
