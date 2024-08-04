@@ -49,14 +49,15 @@ namespace Keepi.Server.Controllers
             return new List<User> { };
         }
 
-        [HttpGet("_login/{_email}/{_password}")]
-        public async Task<List<User>> Login(string _email, string _password)
+        [HttpGet("_login/{_userName}/{_password}")]
+        public async Task<List<User>> Login(string _userName, string _password)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    User user = await _context.Users.FirstOrDefaultAsync(u => u.Email == _email && u.Password == _password);
+                    //User user = await _context.Users.FirstOrDefaultAsync(u => u.Email == _email && u.Password == _password);
+                    User user = await _context.Users.FirstOrDefaultAsync(u => u.Username == _userName && u.Password == _password);
 
                     if (user != null)
                     {
@@ -72,10 +73,10 @@ namespace Keepi.Server.Controllers
             }
             catch (Exception e)
             {
-                return new List<User> { };
+                return null;
             }
 
-            return new List<User> { };
+            return null;
         }
     }
 

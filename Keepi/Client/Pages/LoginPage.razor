@@ -1,48 +1,101 @@
 ﻿@page "/login"
 @using Keepi.Client.Repositories.Interfaces
 @using Keepi.Shared
-@inject IJSRuntime JS   
+@inject IJSRuntime JS
 @inject ILoginRepository loginRepository
 @inject NavigationManager NavManager
 
-<h3>Login</h3>
-<div>
-    <input type="email" id="email" name="email" @bind="email" required>
-    <input type="password" id="password" name="password" @bind="password" required>
-    <button @onclick=Login>Login</button>
+<style>
+    .input {
+        width: 400px;
+        height: 60px;
+        border-radius: 10px;
+        margin-top: 20px;
+        border: solid gray 2px;
+        font-size: 20px;
+    }
 
+    .header {
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        margin-left: 150px;
+        margin-bottom: 20px;
+    }
+
+    .loginBtn {
+        width: 400px;
+        height: 50px;
+        border-radius: 10px;
+        font-size: 20px;
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        background: #8FCCBA;
+        border: none;
+        margin-top: 20px;
+    }
+
+        .loginBtn:active {
+            background: #DBF5EA;
+        }
+</style>
+
+<div>
+    <table>
+        <tr>
+            <td>
+                <image class="img" src="/Resources/Images/image4.jpeg" style="margin-left: -20px;"></image>
+            </td>
+            <td>
+                <table style="margin-left: 100px;">
+                    <tr>
+                        <h1 class="header">Login</h1>
+                    </tr>
+                    <tr>
+                        <input class="input" type="text" id="userName" name="userName" @bind="userName" placeholder="User Name" required>
+                    </tr>
+                    <tr>
+                        <input class="input" type="password" id="password" name="password" @bind="password" placeholder="Password" required>
+                    </tr>
+                    <tr>
+                        <button class="loginBtn" @onclick=Login>LOGIN</button>
+                    </tr>
+                    <tr>
+                        <h6 style="margin-top: 50px; margin-left: 115px; font-weight:bold; color: gray;">Don't have an account?</h6>
+                    </tr>
+                    <tr>
+                        <a style="margin-left: 140px;" href="register">Create one now</a>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 </div>
 
-@* <button @onclick="Login">Login</button> *@
-
 @code {
-    //private LoginModel user = new LoginModel();
     private string email;
+    private string userName;
     private string password;
 
     private async Task Login()
     {
-        Console.WriteLine("Email: " + email);
-        Console.WriteLine("Password: " + password);
-        List<User> response = await loginRepository.Login(email, password);
-        if (response != null && response.Count > 0)
+        if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
         {
-            Console.WriteLine("User name: " + response[0].Username);
-            // כאן תבצע את הפעולות לאימות המשתמש (נניח שזה הצליח)
-            //string userToken = "user-auth-token"; // token שהתקבל מהשרת
+            await JS.InvokeAsync<object>("alert", "Please enter user name and password");
+            return;
+        }
 
-            // שמירת ה-token ב-Local Storage
-            //await JS.InvokeVoidAsync("localStorageHelper.save", "authToken", userToken);
+        List<User> response = await loginRepository.Login(userName, password);
+        if (response == null)
+        {
+            await JS.InvokeAsync<object>("alert", "An errr occured while login");
+        }
+        else if (response.Count == 0)
+        {
+            await JS.InvokeAsync<object>("alert", "Invalid user name or password");
+        }
+        else
+        {
             await JS.InvokeVoidAsync("localStorageHelper.save", "user", response[0]);
             NavManager.NavigateTo("home");
-
         }
-        //var response = await loginRepository.Test();
-
-       
-
-        // ניווט לדף הראשי או דף אחר
-        //NavigationManager.NavigateTo("/");
     }
 }
 

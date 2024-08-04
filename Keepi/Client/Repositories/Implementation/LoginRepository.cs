@@ -21,8 +21,11 @@ namespace Keepi.Client.Repositories.Implementation
         //public async Task<List<User>> Login() =>
         //     await Get<User>(URL + System.IO.Path.AltDirectorySeparatorChar + "_login");
 
-        public async Task<List<User>> Login(string email, string password) =>
-            await Get<User>($"api/Login/_login/{email}/{password}");
+        //public async Task<List<User>> Login(string email, string password) =>
+        //    await Get<User>($"api/Login/_login/{email}/{password}");
+
+        public async Task<List<User>> Login(string userName, string password) =>
+            await Get<User>($"api/Login/_login/{userName}/{password}");
 
         private readonly HttpClient _httpClient;
 
