@@ -17,12 +17,6 @@ namespace Keepi.Server.Controllers
             _context = context;
         }
 
-        //[HttpGet("test")]
-        //public async Task<List<bool>> Test()
-        //{
-        //    return new List<bool> { false };
-        //}
-
         [HttpPost("upload_image")]
         public async Task<List<bool>> UploadProfileImage()
         {
@@ -111,7 +105,9 @@ namespace Keepi.Server.Controllers
 
                 if (user != null)
                 {
-                    user.Password = newPassword;
+                    string hashedPassword = BCrypt.Net.BCrypt.HashPassword(newPassword);
+
+                    user.Password = hashedPassword;
                     await _context.SaveChangesAsync();
                     return new List<User> { user };
                 }
@@ -153,7 +149,7 @@ namespace Keepi.Server.Controllers
             return new List<User> { };
         }
 
-        [HttpGet("editBirthDate/{userId}/{newAge}")]
+        [HttpGet("editAge/{userId}/{newAge}")]
         public async Task<List<User>> EditAge(Guid userId, int newAge)
         {
             if (ModelState.IsValid)
