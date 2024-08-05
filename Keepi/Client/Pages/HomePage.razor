@@ -4,12 +4,121 @@
 @inject IPostRepository postRepository
 @inject IJSRuntime JS
 
-@* add search *@
-<PostComponent postsList="@_postsList"/>
+<style>
+    .filterBtn {
+        width: 120px;
+        height: 120px;
+        background: #EAEAEA;
+        border: none;
+        border-radius: 50%;
+        align-content: center;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+
+        .filterBtn:hover {
+            border: solid gray 1px;
+            background: #F8F8F8;
+        }
+
+        .filterBtn:active {
+            border: solid gray 1px;
+            background: #E0E0E0;
+        }
+
+    .btnImage {
+        width: 80px;
+        height: 80px;
+    }
+
+    .top_div {
+        /* background-image: url("/Resources/Images/homeBackground4.png"); */
+        background-image: url("/Resources/Images/homeBackground4.png");
+        background-size: cover;
+        width: 100%;
+        height: 180px;
+        border-radius: 10px;
+    }
+
+    .header {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        text-align: center;
+        margin-top: 10px;
+    }
+</style>
+
+@* <div class="top_div"> *@
+    @* <h1 class="header">KEEP YOUR PRECIUS SAFE</h1> *@
+@* </div> *@
+<table style="width: 100%; margin-top: 0px; background-image: url('/Resources/Images/home3.png'); background-size: cover; height: 100vh;">
+    <tr>
+        <table style="width: 100%; margin-bottom: 30px; margin-top: 50px;">
+            <tr>
+                <td style="width: 2%"></td>
+                <td align="center" style="width: 12%">
+                    <button class="filterBtn" style="border: solid purple 3px;" @onclick="()=>FilterPostsList(0)" title="All categories">
+                        <image class="btnImage" src="/Resources/Images/AllCategory.png"></image>
+                    </button>
+                </td>
+                <td align="center" style="width: 12%">
+                    <button class="filterBtn" style="border: solid orange 3px;" @onclick="()=>FilterPostsList(1)" title="Animal care services">
+                        <image class="btnImage" src="/Resources/Images/AnimalCategory.png"></image>
+                    </button>
+                </td>
+                <td align="center" style="width: 12%">
+                    <button class="filterBtn" style="border: solid lightblue 3px;" @onclick="()=>FilterPostsList(2)" title="Baby and child care services">
+                        <image class="btnImage" src="/Resources/Images/BabyCategory.png"></image>
+                    </button>
+                </td>
+                <td align="center" style="width: 12%">
+                    <button class="filterBtn" style="border: solid lightgreen 3px;" @onclick="()=>FilterPostsList(3)" title="Elderly care services">
+                        <image class="btnImage" src="/Resources/Images/AdultCategory.png"></image>
+                    </button>
+                </td>
+                <td align="center" style="width: 12%">
+                    <button class="filterBtn" style="border: solid pink 3px;" @onclick="()=>FilterPostsList(4)" title="Event security">
+                        <image class="btnImage" src="/Resources/Images/EventCategory.png"></image>
+                    </button>
+                </td>
+                <td align="center" style="width: 12%">
+                    <button class="filterBtn" style="border: solid red 3px;" @onclick="()=>FilterPostsList(5)" title="Security of private buildings">
+                        <image class="btnImage" src="/Resources/Images/PrivateBuildingsCategory.png"></image>
+                    </button>
+                </td>
+                <td align="center" style="width: 12%">
+                    <button class="filterBtn" style="border: solid yellow 3px;" @onclick="()=>FilterPostsList(6)" title="Security of public buildings">
+                        <image class="btnImage" src="/Resources/Images/PublicBuildingsCategory.png"></image>
+                    </button>
+                </td>
+                <td align="center" style="width: 12%">
+                    <button class="filterBtn" style="border: solid brown 3px;" @onclick="()=>FilterPostsList(7)" title="Storage services">
+                        <image class="btnImage" src="/Resources/Images/StorageCategory.png"></image>
+                    </button>
+                </td>
+                <td style="width: 2%"></td>
+            </tr>
+        </table>
+    </tr>
+    <tr align="center">
+        <PostComponent postsList="@_filteredPostsList" />
+    </tr>
+</table>
+
 
 @code {
     public List<Post> _postsList { get; set; }
+    public List<Post> _filteredPostsList { get; set; }
     User user;
+
+    private List<string> Categories = new List<string>
+    {
+      "Animal care services",
+      "Baby and child care services",
+      "Elderly care services",
+      "Event security",
+      "Security of private buildings",
+      "Security of public buildings",
+      "Storage services"
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -17,5 +126,39 @@
 
         var allPosts = await postRepository.GetAllPosts();
         _postsList = allPosts.Where(p => p.UserId != user.Id).ToList();
+        _filteredPostsList = _postsList;
+    }
+
+    private void FilterPostsList(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                _filteredPostsList = _postsList;
+                break;
+            case 1:
+                _filteredPostsList = _postsList.Where(p => p.Category == Categories[0]).ToList();
+                StateHasChanged();
+                break;
+            case 2:
+                _filteredPostsList = _postsList.Where(p => p.Category == Categories[1]).ToList();
+                break;
+            case 3:
+                _filteredPostsList = _postsList.Where(p => p.Category == Categories[2]).ToList();
+                break;
+            case 4:
+                _filteredPostsList = _postsList.Where(p => p.Category == Categories[3]).ToList();
+                break;
+            case 5:
+                _filteredPostsList = _postsList.Where(p => p.Category == Categories[4]).ToList();
+                break;
+            case 6:
+                _filteredPostsList = _postsList.Where(p => p.Category == Categories[5]).ToList();
+                break;
+            case 7:
+                _filteredPostsList = _postsList.Where(p => p.Category == Categories[6]).ToList();
+                break;
+
+        }
     }
 }

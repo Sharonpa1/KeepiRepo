@@ -5,10 +5,11 @@
     .nav_btn {
         border: 0px;
         background: transparent;
-        border-radius: 5px;
+        border-radius: 50%;
         height: 35px;
         width: 35px;
         align-content: center;
+        margin-left: 15px;
     }
 
         .nav_btn:hover {
@@ -22,38 +23,65 @@
     .btn_img {
         width: 25px;
         height: 25px;
+        margin-left: auto;
+        margin-right: auto;
     }
 </style>
 
 
-<a class="nav_btn" href="/profile" align="left">
+<button class="nav_btn" @onclick="ProfileBtn">
     <image class="btn_img" src="/Resources/Images/user.png"></image>
-</a>
+</button>
 
-<a class="nav_btn" href="/home">
+<button class="nav_btn" @onclick="HomeBtn">
     <image class="btn_img" src="/Resources/Images/home.png"></image>
-</a>
+</button>
 
-<a class="nav_btn" href="/notifications">
+<button class="nav_btn" @onclick="NotificationsBtn">
     <image class="btn_img" src="/Resources/Images/bell.png"></image>
-</a>
+</button>
 
-<a class="nav_btn" href="/searchProfile">
+<button class="nav_btn" @onclick="SearchBtn">
     <image class="btn_img" src="/Resources/Images/search.png"></image>
-</a>
+</button>
 
-<a class="nav_btn" href="/chat">
+<button class="nav_btn" @onclick="ChatBtn">
     <image class="btn_img" src="/Resources/Images/chat.png"></image>
-</a>
+</button>
 
-<button class="nav_btn" @onclick="Logout">
+<button class="nav_btn" @onclick="LogoutBtn">
     <image class="btn_img" src="/Resources/Images/logout.png"></image>
 </button>
 
 
 @code {
 
-    private async Task Logout()
+    private void ProfileBtn()
+    {
+        NavManager.NavigateTo("/profile");
+    }
+
+    private void HomeBtn()
+    {
+        NavManager.NavigateTo("/home");
+    }
+
+    private void NotificationsBtn()
+    {
+        NavManager.NavigateTo("/notifications");
+    }
+
+    private void SearchBtn()
+    {
+        NavManager.NavigateTo("/searchProfile");
+    }
+
+    private void ChatBtn()
+    {
+        NavManager.NavigateTo("/chat");
+    }
+
+    private async Task LogoutBtn()
     {
         bool confirmed = await JS.InvokeAsync<bool>("confirm", "Are you sure you want to logout?");
 
