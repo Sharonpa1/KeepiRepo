@@ -75,7 +75,7 @@
         if (postToEdit != null)
         {
             selectedOption = postToEdit.Category;
-            postContent = postToEdit.Text;
+            postContent = postToEdit.Content;
         }
     }
 
@@ -102,7 +102,7 @@
                 editedPost = await postRepository.EditPostCategory(postToEdit.Id, selectedOption);
 
             }
-            if (postToEdit.Text != postContent)
+            if (postToEdit.Content != postContent)
             {
                 editedPost = await postRepository.EditPostContent(postToEdit.Id, postContent);
             }

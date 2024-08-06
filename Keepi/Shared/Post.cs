@@ -14,7 +14,7 @@ namespace Keepi.Shared
         public Guid Id { get; set; }
         public DateTime Date { get; set; }
         public string Category { get; set; }
-        public string Text { get; set; }
+        public string Content { get; set; }
         public Guid UserId { get; set; }
         public User User { get; set; }
 

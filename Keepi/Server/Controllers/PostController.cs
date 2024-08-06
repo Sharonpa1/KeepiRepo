@@ -30,7 +30,7 @@ namespace Keepi.Server.Controllers
                     Id = new Guid(),
                     Date = DateTime.Now,
                     Category = Category,
-                    Text = Text,
+                    Content = Text,
                     UserId = UserId
                 };
 
@@ -146,7 +146,7 @@ namespace Keepi.Server.Controllers
 
                     if (post != null)
                     {
-                        post.Text = _newContent;
+                        post.Content = _newContent;
                         await _context.SaveChangesAsync();
                         return new List<Post> { post };
                     }

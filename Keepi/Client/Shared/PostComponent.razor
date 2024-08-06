@@ -64,7 +64,7 @@ else
                     <tr align="center" style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">@post.Category</tr>
                     <tr>
                         <td style="width:100%;">
-                            <p style="margin-left: 10px; margin-right: 10px;">@post.Text</p>
+                            <p style="margin-left: 10px; margin-right: 10px;">@(post.Content.Replace("\n", "<br />"))</p>
                         </td>
                     </tr>
 
