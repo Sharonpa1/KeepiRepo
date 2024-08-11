@@ -1,5 +1,7 @@
-﻿@inject IJSRuntime JS
+﻿@using Keepi.Shared
+@inject IJSRuntime JS
 @inject NavigationManager NavManager
+@using System.Timers
 
 <style>
     .nav_btn {
@@ -28,33 +30,81 @@
     }
 </style>
 
+<div style="position:absolute; left:0px; margin-left: 10px;">
+    <image style="width: 150px; height: 50px;" src="/Resources/Images/Logo3.png"></image>
+</div>
 
-<button class="nav_btn" @onclick="ProfileBtn">
-    <image class="btn_img" src="/Resources/Images/user.png"></image>
-</button>
+<div style="position:absolute; right:0px; margin-right: 10px;">
+    @if (!isUserLoggedOn)
+    {
+        <button class="nav_btn" @onclick="LoginBtn">
+            <image class="btn_img" src="/Resources/Images/login.png"></image>
+        </button>
+    }
+    else
+    {
+        <button class="nav_btn" @onclick="ProfileBtn">
+            <image class="btn_img" src="/Resources/Images/user.png"></image>
+        </button>
 
-<button class="nav_btn" @onclick="HomeBtn">
-    <image class="btn_img" src="/Resources/Images/home.png"></image>
-</button>
+        <button class="nav_btn" @onclick="HomeBtn">
+            <image class="btn_img" src="/Resources/Images/home.png"></image>
+        </button>
 
-<button class="nav_btn" @onclick="NotificationsBtn">
-    <image class="btn_img" src="/Resources/Images/bell.png"></image>
-</button>
+        <button class="nav_btn" @onclick="NotificationsBtn">
+            <image class="btn_img" src="/Resources/Images/bell.png"></image>
+        </button>
 
-<button class="nav_btn" @onclick="SearchBtn">
-    <image class="btn_img" src="/Resources/Images/search.png"></image>
-</button>
+        <button class="nav_btn" @onclick="SearchBtn">
+            <image class="btn_img" src="/Resources/Images/search.png"></image>
+        </button>
 
-<button class="nav_btn" @onclick="ChatBtn">
-    <image class="btn_img" src="/Resources/Images/chat.png"></image>
-</button>
+        <button class="nav_btn" @onclick="ChatBtn">
+            <image class="btn_img" src="/Resources/Images/chat.png"></image>
+        </button>
 
-<button class="nav_btn" @onclick="LogoutBtn">
-    <image class="btn_img" src="/Resources/Images/logout.png"></image>
-</button>
+        <button class="nav_btn" @onclick="LogoutBtn">
+            <image class="btn_img" src="/Resources/Images/logout.png"></image>
+        </button>
+    }
+</div>
 
 
 @code {
+    private bool isUserLoggedOn = false;
+    private Timer timer;
+    User loggedOnUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        timer = new Timer(1000);
+        timer.Elapsed += OnTimerElapsed;
+        timer.AutoReset = true;
+        timer.Enabled = true;
+
+    }
+
+    private void OnTimerElapsed(object sender, ElapsedEventArgs e)
+    {
+        GetUser();
+
+        if (loggedOnUser == null)
+            isUserLoggedOn = false;
+        else
+            isUserLoggedOn = true;
+
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    private async Task GetUser()
+    {
+        loggedOnUser = await JS.InvokeAsync<User>("localStorageHelper.get", "user");
+    }
+
+    private void LoginBtn()
+    {
+        NavManager.NavigateTo("/");
+    }
 
     private void ProfileBtn()
     {
