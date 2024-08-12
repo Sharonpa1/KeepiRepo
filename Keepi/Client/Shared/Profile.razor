@@ -1,5 +1,6 @@
 ﻿@using Keepi.Client.Repositories.Interfaces
 @using Keepi.Shared
+@using System.Text.RegularExpressions
 @inject HttpClient Http
 @inject IProfileRepository profileRepository
 @inject IPostRepository postRepository
@@ -737,6 +738,12 @@ else
 
         if (user.PhoneNumber != editedUser.PhoneNumber)
         {
+            if (!IsValidPhoneNumber(editedUser.PhoneNumber))
+            {
+                await JS.InvokeAsync<object>("alert", "Invalid phone number");
+                return;
+            }
+
             newUser = await profileRepository.EditPhoneNumber(editedUser.Id, editedUser.PhoneNumber);
 
             if (newUser != null && newUser.Count > 0)
@@ -749,6 +756,12 @@ else
 
         isEditingPhone = false;
         editedUser.PhoneNumber = user.PhoneNumber;
+    }
+
+    private bool IsValidPhoneNumber(string phoneNumber)
+    {
+        var phoneRegex = new Regex(@"^05\d{1}-?\d{7}$");
+        return phoneRegex.IsMatch(phoneNumber);
     }
 
     private async Task SaveEditAge()

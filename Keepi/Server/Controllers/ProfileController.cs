@@ -11,10 +11,12 @@ namespace Keepi.Server.Controllers
     public class ProfileController : ControllerBase
     {
         private readonly Db_Context _context;
+        private readonly IWebHostEnvironment _environment;
 
-        public ProfileController(Db_Context context)
+        public ProfileController(Db_Context context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
         [HttpPost("upload_image")]
@@ -296,6 +298,15 @@ namespace Keepi.Server.Controllers
         }
 
 
+        public async Task UpdateUserProfileImageAsync(int userId, string filePath)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user != null)
+            {
+                user.ProfilePhoto = filePath;
+                await _context.SaveChangesAsync();
+            }
+        }
 
         //[HttpPost("upload")]
         //public async Task<IActionResult> UploadProfilePicture(IFormFile file)
@@ -311,7 +322,7 @@ namespace Keepi.Server.Controllers
         //        await file.CopyToAsync(fileStream);
         //    }
 
-        //    await _profileRepository.SaveProfilePicturePathAsync(fileName);
+        //    //await _profileRepository.SaveProfilePicturePathAsync(fileName);
 
         //    return Ok(new { Path = $"/profile-pictures/{fileName}" });
         //}
