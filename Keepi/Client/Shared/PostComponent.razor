@@ -4,6 +4,24 @@
 @inject IJSRuntime JS
 @inject NavigationManager NavManager
 
+<style>
+    .saveNewPostBtn {
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        width: 70px;
+        height: 30px;
+        font-weight: bold;
+        font-size: 16px;
+        background: #FF966C;
+        border: none;
+        border-radius: 20px;
+        margin-top: 10px;
+        margin-right: 10px;
+    }
+
+        .saveNewPostBtn:active {
+            background: #FAA381;
+        }
+</style>
 
 @if (postsList == null || user == null)
 {
@@ -21,7 +39,38 @@ else
             <table style="width: 100%">
                 @if (isEditing && post.Id == editingPostId)
                 {
-                    <NewPostComponent isEditMode="true" postToEdit="@post" />
+                    @* <NewPostComponent isEditMode="true" postToEdit="@post" /> *@
+
+                    <div style="border: none; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); border-radius:10px; margin-bottom: 10px; width: 500px; height: auto;">
+                        <table style="width: 100%">
+                            <tr>
+                                <p style="margin-left: 50px; margin-top: 10px; font-weight: bold;">Category:</p>
+                            </tr>
+                            <tr align="center">
+                                <select style="width: 80%; height: 30px;" id="comboBox" @bind="selectedOption">
+                                    @foreach (var option in Categories)
+                                    {
+                                        <option value="@option">@option</option>
+                                    }
+                                </select>
+                            </tr>
+                            <tr>
+                                <p style="margin-left: 50px; margin-top: 10px; font-weight: bold;">Content:</p>
+                            </tr>
+                            <tr align="center">
+                                <textarea style="width: 80%; height: 60px; max-height: 60px;" type="text" @bind="postContent"></textarea>
+                            </tr>
+                            <tr>
+                                <div style="display: flex; margin-left: 50px;">
+                                    <button class="saveNewPostBtn" @onclick="SaveEditPost">Save</button>
+                                    <button class="saveNewPostBtn" @onclick="CancelEditPost">Cancel</button>
+                                </div>
+                            </tr>
+                            <tr>
+                                <p></p>
+                            </tr>
+                        </table>
+                    </div>
                 }
                 else
                 {
@@ -36,7 +85,7 @@ else
                                 @if (post.UserId == user.Id)
                                 {
                                     <td style="width: 10%">
-                                        <button style="width: 20px; height: 20px; background:none; border: none; align-content:center;" @onclick="()=>EditPost(post.Id)">
+                                        <button style="width: 20px; height: 20px; background:none; border: none; align-content:center;" @onclick="()=>EditPost(post)">
                                             <image style="width: 15px; height: 15px;" src="/Resources/Images/editIcon.png"></image>
                                         </button>
                                     </td>
@@ -85,6 +134,20 @@ else
     User user;
     private bool isEditing = false;
     private Guid editingPostId;
+    private string selectedOption;
+    private string postContent;
+    Post postToEdit;
+
+    private List<string> Categories = new List<string>
+    {
+      "Animal care services",
+      "Baby and child care services",
+      "Elderly care services",
+      "Event security",
+      "Security of private buildings",
+      "Security of public buildings",
+      "Storage services"
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -111,10 +174,47 @@ else
         }
     }
 
-    private void EditPost(Guid postId)
+    private void EditPost(Post post)
     {
         isEditing = true;
-        editingPostId = postId;
+        editingPostId = post.Id;
+        postToEdit = post;
+        selectedOption = post.Category;
+        postContent = post.Content;
+    }
+
+    private async Task SaveEditPost()
+    {
+        List<Post> editedPost = new List<Post>();
+
+        if (postToEdit.Category != selectedOption)
+        {
+            editedPost = await postRepository.EditPostCategory(postToEdit.Id, selectedOption);
+        }
+        if (postToEdit.Content != postContent)
+        {
+            editedPost = await postRepository.EditPostContent(postToEdit.Id, postContent);
+        }
+
+        if (editedPost != null && editedPost.Count > 0)
+        {
+            isEditing = false;
+            var p = postsList.Where(p => p.Id == editedPost[0].Id);
+            //postsList.Remove((Post)p);
+            postsList.Add(editedPost[0]);
+            StateHasChanged();
+        }
+        else
+        {
+            await JS.InvokeAsync<object>("alert", "Failed to edit post");
+        }
+    }
+
+    private void CancelEditPost()
+    {
+        selectedOption = null;
+        postContent = string.Empty;
+        isEditing = false;
     }
 
     private async Task SavePostToUserCollection(Guid postId)

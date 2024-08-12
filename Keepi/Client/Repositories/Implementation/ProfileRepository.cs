@@ -18,10 +18,7 @@ namespace Keepi.Client.Repositories.Implementation
         public async Task<object> UploadProfileImage(MultipartFormDataContent file) =>
              await Post<MultipartFormDataContent>(URL + System.IO.Path.AltDirectorySeparatorChar + "upload_image", file);
 
-        public async Task<List<User>> EditUserName(Guid userId, string newUserName) =>
-             await Get<User>($"api/Profile/editUserName/{userId}/{newUserName}");
-
-        public async Task<List<User>> EditFirstName(Guid userId, string newFirstName) =>
+            public async Task<List<User>> EditFirstName(Guid userId, string newFirstName) =>
              await Get<User>($"api/Profile/editFirstName/{userId}/{newFirstName}");
 
         public async Task<List<User>> EditLastName(Guid userId, string newLastName) =>
@@ -39,11 +36,17 @@ namespace Keepi.Client.Repositories.Implementation
         public async Task<List<User>> EditAge(Guid userId, int newAge) =>
              await Get<User>($"api/Profile/editAge/{userId}/{newAge}");
 
-        public async Task<List<bool>> FollowUser(Guid _CurrentUserId, Guid _UserIdToFollow) =>
-            await Get<bool>($"api/Profile/followUser/{_CurrentUserId}/{_UserIdToFollow}");
+        public async Task<List<User>> FollowUser(Guid _CurrentUserId, Guid _UserIdToFollow) =>
+            await Get<User>($"api/Profile/followUser/{_CurrentUserId}/{_UserIdToFollow}");
 
-        public async Task<List<bool>> UnFollowUser(Guid _CurrentUserId, Guid _UserIdToUnFollow) =>
-            await Get<bool>($"api/Profile/unFollowUser/{_CurrentUserId}/{_UserIdToUnFollow}");
+        public async Task<List<User>> UnFollowUser(Guid _CurrentUserId, Guid _UserIdToUnFollow) =>
+            await Get<User>($"api/Profile/unFollowUser/{_CurrentUserId}/{_UserIdToUnFollow}");
+
+        public async Task<List<User>> GetUserFollowersList(Guid userId) =>
+             await Get<User>($"api/Profile/getFollowers/{userId}");
+        
+        public async Task<List<User>> GetUserFollowingList(Guid userId) =>
+             await Get<User>($"api/Profile/getFollowing/{userId}");
 
     }
 

@@ -86,7 +86,7 @@
         List<User> response = await loginRepository.Login(userName, password);
         if (response == null)
         {
-            await JS.InvokeAsync<object>("alert", "An errr occured while login");
+            await JS.InvokeAsync<object>("alert", "An error occured while login");
         }
         else if (response.Count == 0)
         {

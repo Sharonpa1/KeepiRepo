@@ -5,7 +5,7 @@
 @inject ISearchUserRepository searchUserRepository
 @using System.Timers
 @using Keepi.Shared
-@implements IDisposable
+@inject IJSRuntime JS
 
 <style>
     .search-container {
@@ -33,81 +33,82 @@
     }
 </style>
 
+@if (loggedOnUser == null)
+{
+    <h6>Please login first...</h6>
+}
+else
+{
+    <div align="center" class="search-container">
 
-
-<div class="search-container">
-    <input type="text" @bind="searchQuery" placeholder="חפש שם משתמש..." />
-    <button @onclick=SearchUsers>
-        <image class="btn_img" src="/Resources/Images/search.png"></image>
-    </button>
-    <div>
-        @if (searchResults.Any())
-        {
-            @foreach (var result in searchResults)
+        <input style="width: 400px; border-radius: 5px; border: solid gray 2px; height:40px;" type="text" @bind="searchQuery" placeholder="Enter user name..." />
+        <button style="width: 40px; height: 40px; border-radius: 5px;" @onclick=SearchUsers>
+            <image style="width: 25px; height: 25px;" src="/Resources/Images/search.png"></image>
+        </button>
+        <div>
+            @if (!string.IsNullOrEmpty(searchQuery))
             {
-                <button style="width: 100px; height: 30px;" @onclick="()=>GetSelectedUser(result)">
-                    @result
-                </button>
-                <br />
+                @if (searchResults_Users == null)
+                {
+                    <li>Loading...</li>
+                }
+                else if (searchResults_Users.Count == 0)
+                {
+                    <li>There are no results...</li>
+                }
+                else
+                {
+                    @foreach (var user in searchResults_Users)
+                    {
+                        <button style="border: none; background: none;" @onclick="()=>GetSelectedUser(user)">
+                            <div style="display: flex; margin-top: 20px; width: 200px; height: 40px; background: #EAEAEA; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); border-radius: 10px;">
+                                <image style="width: 15px; height: 15px; margin-left: 10px; margin-right: 10px; margin-top:auto; margin-bottom:auto;" src="/Resources/Images/user.png"></image>
+                                @* <image style="width: 15px; height: 15px;" src="@post.User.ProfilePhoto"></image> *@
+                                <p style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; margin-top:auto; margin-bottom:auto;">@user.Username</p>
+                            </div>
+                        </button>
+                        <br />
+                    }
+                }
             }
-        }
-        else if (!string.IsNullOrEmpty(searchQuery))
+        </div>
+    </div>
+
+    <div>
+        @if (selectedUser != null)
         {
-            <li>לא נמצאו תוצאות</li>
+            <Profile user="@selectedUser" />
         }
     </div>
-</div>
+}
 
-<div>
-    @if(selectedUser != null)
-    {
-        <Profile user="@selectedUser"/>
-    }
-</div>
+
 
 
 
 @code {
     private string searchQuery = "";
     private List<string> searchResults = new List<string>();
+    private User loggedOnUser;
     private User selectedUser;
     private Timer timer;
+    private List<User> searchResults_Users;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        // timer = new Timer(500); // קובע את המרווח ל-1000 מילישניות (1 שנייה)
-        // timer.Elapsed += OnTimerElapsed;
-        // timer.AutoReset = true; // מאפשר את הרצת הטיימר בצורה חוזרת
-        // timer.Enabled = true;   // מפעיל את הטיימר
-    }
+        loggedOnUser = await JS.InvokeAsync<User>("localStorageHelper.get", "user");
 
-    private void OnTimerElapsed(object sender, ElapsedEventArgs e)
-    {
-        // כאן תשים את הקוד שצריך לפעול כל שנייה
-        if (!string.IsNullOrEmpty(searchQuery))
-        {
-            Console.WriteLine("))))))))))");
-            SearchUsers();
-        }
-        // לדוגמה, עדכון משתנה מקומי
-        // currentTime = DateTime.Now;
-
-        // קריאה ל-StateHasChanged כדי לעדכן את הממשק המשתמש
-        InvokeAsync(() => StateHasChanged());
-    }
-
-    public void Dispose()
-    {
-        timer?.Dispose();
     }
 
 
 
-    private async Task GetSelectedUser(string userName)
+    private async Task GetSelectedUser(User user)
     {
+        searchResults_Users = new List<User>();
+        searchQuery = string.Empty;
 
-        var response = await searchUserRepository.GetUserByUserName(userName);
-        if(response != null && response.Count > 0)
+        var response = await searchUserRepository.GetUserByUserName(user.Username);
+        if (response != null && response.Count > 0)
         {
             selectedUser = response[0];
         }
@@ -118,28 +119,33 @@
     {
         if (!string.IsNullOrEmpty(searchQuery))
         {
+            selectedUser = null;
             searchResults = await searchUserRepository.SearchUsers(searchQuery);
+            await GetSearchResultsUserList(searchResults);
         }
         else
         {
             searchResults.Clear();
         }
     }
-    // private string searchQuery = "";
-    // private List<string> searchResults = new List<string>();
 
-    // private async Task SearchUsers()
-    // {
-    //     if (!string.IsNullOrEmpty(searchQuery))
-    //     {
-    //         searchResults = await _context.Users
-    //             .Where(u => u.Username.StartsWith(searchQuery))
-    //             .Select(u => u.Username)
-    //             .ToListAsync();
-    //     }
-    //     else
-    //     {
-    //         searchResults.Clear();
-    //     }
-    // }
+    private async Task GetSearchResultsUserList(List<string> userNamesList)
+    {
+        searchResults_Users = new List<User>();
+
+        if (userNamesList == null || userNamesList.Count == 0)
+            return;
+
+        foreach (var userName in userNamesList)
+        {
+            if (userName != loggedOnUser.Username)
+            {
+                var response = await searchUserRepository.GetUserByUserName(userName);
+                if (response != null && response.Count > 0)
+                {
+                    searchResults_Users.Add(response[0]);
+                }
+            }
+        }
+    }
 }

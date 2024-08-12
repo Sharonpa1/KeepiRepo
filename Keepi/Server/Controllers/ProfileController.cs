@@ -167,7 +167,7 @@ namespace Keepi.Server.Controllers
         }
 
         [HttpGet("followUser/{_CurrentUserId}/{_UserIdToFollow}")]
-        public async Task<List<bool>> FollowUser(Guid _CurrentUserId, Guid _UserIdToFollow)
+        public async Task<List<User>> FollowUser(Guid _CurrentUserId, Guid _UserIdToFollow)
         {
             try
             {
@@ -180,20 +180,20 @@ namespace Keepi.Server.Controllers
                     UserToFollow.Followers += _CurrentUserId + ";";
                     await _context.SaveChangesAsync();
 
-                    return new List<bool> { true };
+                    return new List<User> { CurrentUser };
                 }
 
             }
             catch (Exception)
             {
-                return new List<bool> { false };
+                return null;
             }
 
-            return new List<bool> { false };
+            return null;
         }
 
         [HttpGet("unFollowUser/{_CurrentUserId}/{_UserIdToUnFollow}")]
-        public async Task<List<bool>> UnFollowUser(Guid _CurrentUserId, Guid _UserIdToUnFollow)
+        public async Task<List<User>> UnFollowUser(Guid _CurrentUserId, Guid _UserIdToUnFollow)
         {
             try
             {
@@ -213,85 +213,109 @@ namespace Keepi.Server.Controllers
 
                     await _context.SaveChangesAsync();
 
-                    return new List<bool> { true };
+                    return new List<User> { CurrentUser };
                 }
 
             }
             catch (Exception)
             {
-                return new List<bool> { false };
+                return null;
             }
 
-            return new List<bool> { false };
+            return null;
         }
 
-        //[HttpPost("upload_image")]
-        //public async Task<List<bool>> UploadProfileImage([FromForm] MultipartFormDataContent content)
-        //{
-        //    var fileSection = content?.FirstOrDefault(section => section.Headers.ContentDisposition.Name.Trim('"') == "file") as StreamContent;
+        [HttpGet("getFollowers/{userId}")]
+        public async Task<List<User>> GetUserFollowersList(Guid userId)
+        {
+            try
+            {
+                User user = _context.Users.FirstOrDefault(u => u.Id == userId);
+                List<User> followers = new List<User>();
 
-        //    if (fileSection == null)
-        //        return new List<bool> { false };
+                if (user != null)
+                {
+                    string[] followers_id = user.Followers.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (followers_id.Length > 0)
+                    {
+                        foreach (var _id in followers_id)
+                        {
+                            User follower = await _context.Users.FindAsync(Guid.Parse(_id));
+                            if (follower != null)
+                            {
+                                followers.Add(follower);
+                            }
+                        }
+                    }
 
-        //    var fileName = fileSection.Headers.ContentDisposition.FileName.Trim('"');
-        //    var uploads = Path.Combine("C:\\Users\\sharo\\source\\repos\\KeepiRepo\\Keepi\\Server\\API\\UserUploads");
+                    return followers;
+                }
 
-        //    if (!Directory.Exists(uploads))
-        //    {
-        //        Directory.CreateDirectory(uploads);
-        //    }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
 
-        //    var filePath = Path.Combine(uploads, fileName);
+            return null;
+        }
 
-        //    using (var fileStream = new FileStream(filePath, FileMode.Create))
-        //    {
-        //        await fileSection.CopyToAsync(fileStream);
-        //    }
+        [HttpGet("getFollowing/{userId}")]
+        public async Task<List<User>> GetUserFollowingList(Guid userId)
+        {
+            try
+            {
+                User user = _context.Users.FirstOrDefault(u => u.Id == userId);
+                List<User> following = new List<User>();
 
-        //    // כאן נוסיף את שמירת הנתיב למסד הנתונים
-        //    var userId = 1; // קבל את ה-userId מתוך ה-context או פרמטרים אחרים.
-        //    await UpdateUserProfileImageAsync(userId, filePath);
+                if (user != null)
+                {
+                    string[] following_id = user.Following.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (following_id.Length > 0)
+                    {
+                        foreach (var _id in following_id)
+                        {
+                            User _following = await _context.Users.FindAsync(Guid.Parse(_id));
+                            if (_following != null)
+                            {
+                                following.Add(_following);
+                            }
+                        }
+                    }
 
-        //    return new List<bool> { true };
-        //}
+                    return following;
+                }
+
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            return null;
+        }
 
 
-        //[HttpPost("upload_image")]
-        //public async Task<List<bool>> UploadProfileImage([FromForm] IFormFile file)
+
+        //[HttpPost("upload")]
+        //public async Task<IActionResult> UploadProfilePicture(IFormFile file)
         //{
         //    if (file == null || file.Length == 0)
-        //        return new List<bool> { false };
+        //        return BadRequest("No file uploaded.");
 
-        //    //var uploads = Path.Combine(_environment.WebRootPath, "Uploads");
-        //    var uploads = Path.Combine("C:\\Users\\sharo\\source\\repos\\KeepiRepo\\Keepi\\Server\\API\\UserUploads");
-        //    if (!Directory.Exists(uploads))
-        //    {
-        //        Directory.CreateDirectory(uploads);
-        //    }
+        //    var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+        //    var uploadPath = Path.Combine(_environment.WebRootPath, "profile-pictures", fileName);
 
-        //    var filePath = Path.Combine(uploads, file.FileName);
-        //    using (var fileStream = new FileStream(filePath, FileMode.Create))
+        //    using (var fileStream = new FileStream(uploadPath, FileMode.Create))
         //    {
         //        await file.CopyToAsync(fileStream);
         //    }
 
-        //    // כאן נוסיף את שמירת הנתיב למסד הנתונים
-        //    var userId = 1; // קבל את ה-userId מתוך ה-context או פרמטרים אחרים.
-        //    await UpdateUserProfileImageAsync(userId, filePath);
+        //    await _profileRepository.SaveProfilePicturePathAsync(fileName);
 
-        //    return new List<bool> { true };
+        //    return Ok(new { Path = $"/profile-pictures/{fileName}" });
         //}
 
-
-        public async Task UpdateUserProfileImageAsync(int userId, string filePath)
-        {
-            var user = await _context.Users.FindAsync(userId);
-            if (user != null)
-            {
-                user.ProfilePhoto = filePath;
-                await _context.SaveChangesAsync();
-            }
-        }
     }
 
 }

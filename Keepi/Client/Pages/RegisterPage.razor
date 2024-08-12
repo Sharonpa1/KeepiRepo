@@ -57,7 +57,7 @@
                         <table>
                             <tr>
                                 <td>
-                                    <input class="input" type="text" id="userName" name="userName" @bind="Username" placeholder="User Name" required>
+                                    <input class="input" type="text" id="userName" name="userName" maxlength="20" @bind="Username" placeholder="User Name" required>
                                 </td>
                                 <td>
                                     <input class="input" type="email" id="email" name="email" @bind="Email" placeholder="Email" required>
@@ -136,7 +136,7 @@
         List<User> response = await registerRepository.Register(Username, FirstName, LastName, Password, Email, City, int.Parse(Age), PhoneNumber);
         if (response == null)
         {
-            await JS.InvokeAsync<object>("alert", "An errr occured while registration");
+            await JS.InvokeAsync<object>("alert", "An error occured while registration");
         }
         else if (response.Count == 0)
         {

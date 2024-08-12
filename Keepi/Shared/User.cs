@@ -48,7 +48,7 @@ namespace Keepi.Shared
         public string ProfilePhoto { get; set; } = ";";
         public string Following { get; set; } = ";";
         public string Followers { get; set; } = ";";
-        public int WalletCount { get; set; } = 100;
+        public int WalletCount { get; set; }
         public string SavedPosts { get; set; } = ";";
     }
 }
