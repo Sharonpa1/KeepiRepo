@@ -98,13 +98,18 @@ else
                                 {
                                     <td style="width: 10%">
 
-                                        <button style="width: 20px; height: 20px; background:none; border: none; align-content:center;" @onclick="()=>SavePostToUserCollection(post.Id)">
-                                            <image style="width: 15px; height: 15px;" src="/Resources/Images/unsaved.png"></image>
-                                        </button>
-
-                                        <button style="width: 20px; height: 20px; background:none; border: none; align-content:center;" @onclick="()=>UnsavePostFromUserCollection(post.Id)">
-                                            <image style="width: 15px; height: 15px;" src="/Resources/Images/saved.png"></image>
-                                        </button>
+                                        @if (userSavedPosts != null && userSavedPosts.FirstOrDefault(p=> p.Id == post.Id) != null)
+                                        {
+                                            <button style="width: 20px; height: 20px; background:none; border: none; align-content:center;" @onclick="()=>UnsavePostFromUserCollection(post.Id)">
+                                                <image style="width: 15px; height: 15px;" src="/Resources/Images/saved.png"></image>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button style="width: 20px; height: 20px; background:none; border: none; align-content:center;" @onclick="()=>SavePostToUserCollection(post.Id)">
+                                                <image style="width: 15px; height: 15px;" src="/Resources/Images/unsaved.png"></image>
+                                            </button>
+                                        }
                                     </td>
                                 }
                             </tr>
@@ -132,6 +137,7 @@ else
 @code {
     [Parameter] public List<Post> postsList { get; set; }
     User user;
+    private List<Post> userSavedPosts;
     private bool isEditing = false;
     private Guid editingPostId;
     private string selectedOption;
@@ -152,6 +158,11 @@ else
     protected override async Task OnInitializedAsync()
     {
         user = await JS.InvokeAsync<User>("localStorageHelper.get", "user");
+        if (user != null)
+        {
+            userSavedPosts = await postRepository.GetUserSavedPosts(user.Id);
+        }
+
     }
 
     private async Task DeletePost(Guid postId)
@@ -199,10 +210,11 @@ else
         if (editedPost != null && editedPost.Count > 0)
         {
             isEditing = false;
-            var p = postsList.Where(p => p.Id == editedPost[0].Id);
+            NavManager.NavigateTo(NavManager.Uri, true);
+            //var p = postsList.Where(p => p.Id == editedPost[0].Id);
             //postsList.Remove((Post)p);
-            postsList.Add(editedPost[0]);
-            StateHasChanged();
+            //postsList.Add(editedPost[0]);
+            //StateHasChanged();
         }
         else
         {
@@ -219,9 +231,10 @@ else
 
     private async Task SavePostToUserCollection(Guid postId)
     {
-
         var response = await postRepository.SavePostToUserCollection(user.Id, postId);
-        NavManager.NavigateTo(NavManager.Uri, forceLoad: true);
+        userSavedPosts = await postRepository.GetUserSavedPosts(user.Id);
+
+        //NavManager.NavigateTo(NavManager.Uri, forceLoad: true);
 
         // if (response != null && response.Count > 0)
         // {
@@ -237,9 +250,9 @@ else
 
     private async Task UnsavePostFromUserCollection(Guid postId)
     {
-
         var response = await postRepository.UnsavePostFromUserCollection(user.Id, postId);
-        NavManager.NavigateTo(NavManager.Uri, forceLoad: true);
+        userSavedPosts = await postRepository.GetUserSavedPosts(user.Id);
+        //NavManager.NavigateTo(NavManager.Uri, forceLoad: true);
 
     }
 
