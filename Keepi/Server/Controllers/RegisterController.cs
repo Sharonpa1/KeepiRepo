@@ -36,6 +36,7 @@ namespace Keepi.Server.Controllers
 
                     var user = new User
                     {
+                        Id = new Guid(),
                         Username = _username,
                         FirstName = _firstName,
                         LastName = _lastName,
@@ -43,11 +44,16 @@ namespace Keepi.Server.Controllers
                         Email = _email,
                         City = _city,
                         Age = _age,
-                        PhoneNumber = _phoneNumber
+                        PhoneNumber = _phoneNumber,
+                        ProfilePhoto = "User Profiles\\default.png"
                     };
+
+                    //user.ProfilePhoto = "/User Profiles/" + user.Id.ToString() + ".png";
 
                     _context.Users.Add(user);
                     await _context.SaveChangesAsync();
+
+                    var b = await NotificationsHelper.CreateNewFile(user.Id.ToString());
 
                     return new List<User> { user };
                 }

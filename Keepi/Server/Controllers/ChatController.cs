@@ -103,6 +103,25 @@ namespace Keepi.Server.Controllers
 
                         var updatedJsonContent = JsonSerializer.Serialize(chatData, new JsonSerializerOptions { WriteIndented = true });
                         System.IO.File.WriteAllText(chatFilePath, updatedJsonContent);
+
+                        string[] users = fileName.Split(';');
+                        User sender = null;
+                        User receiver = null;
+                        if (users[0] == userId)
+                        {
+                            sender = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == users[0]);
+                            receiver = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == users[1]);
+                        }
+                        else if (users[1] == userId)
+                        {
+                            sender = await _context.Users.FirstOrDefaultAsync(u=> u.Id.ToString() == users[1]);
+                            receiver = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == users[0]);
+                        }
+
+                        if (sender != null && receiver != null)
+                        {
+                            var a = NotificationsHelper.AddNewNotification(receiver.Id.ToString(), NotificationType.Message, $"{sender.Username} sent you a message");
+                        }
                     }
                 }
             }

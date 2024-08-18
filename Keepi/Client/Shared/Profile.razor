@@ -7,6 +7,7 @@
 @inject ISearchUserRepository searchUserRepository
 @inject IWalletRepository walletRepository
 @inject IJSRuntime JS
+@inject NavigationManager NavManager
 
 <style>
     .profile-picture {
@@ -150,6 +151,7 @@
     }
 </style>
 
+
 @if (user == null)
 {
     <p>Loading...</p>
@@ -160,23 +162,37 @@ else
 
     <table style="width: 100%; margin-top: -50px;">
         <tr>
-            <td style="width: 25%;">
-                @* <div align="center" style="background: #EAEAEA; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); border-radius: 10px; margin-right: 50px;"> *@
+            <td style="width: 25%; position: fixed;">
                 <div align="center" style="margin-right: 0px;">
                     <table>
                         <tr>
-                            @* <input type="file" @onchange="OnInputFileChange" />
-                            @if (!string.IsNullOrEmpty(UploadResult))
+                            @if (imageBase64 != null)
                             {
-                                <p>@UploadResult</p>
-                            } *@
-                            <img src="@ProfileImagePath" alt="תמונת פרופיל" class="profile-picture" />
+                                <img src="data:image/jpeg;base64, @imageBase64" class="profile-picture" />
+                            }
+                            else
+                            {
+                                <img src="@ProfileImagePath" alt="תמונת פרופיל" class="profile-picture" />
+                            }
                         </tr>
                         @if (isLoggedOnUser)
                         {
                             <tr align="right">
-                                <button class="editBtn" @onclick="EditProfilePicture" />
+                                @if (isEditingPicture)
+                                {
+                                    <button class="cancelEditBtn" style="margin-right: 50px;" @onclick="CancelEditProfilePicture" />
+                                }
+                                else
+                                {
+                                    <button class="editBtn" @onclick="EditProfilePicture" />
+                                }
                             </tr>
+                            @if (isEditingPicture)
+                            {
+                                <tr>
+                                    <InputFile accept=".jpg,.jpeg,.png" OnChange="OnFileChange" />
+                                </tr>
+                            }
                         }
                         <tr>
                             <h4 style="text-align: center; margin-top: 20px; font-weight:bold;">@user.FirstName @user.LastName</h4>
@@ -206,7 +222,7 @@ else
                     </table>
                 </div>
             </td>
-            <td style="width: 75%;">
+            <td style="width: 75%;  margin-left: 25%; overflow-y: auto;">
                 <div class="tab-menu">
                     <div class="tab @(activeTab == personalDetails_tab ? "active" : "")" @onclick="()=>SetActiveTab(personalDetails_tab)">
                         <span class="oi oi-person" style="margin-right: 5px;" aria-hidden="true"></span>
@@ -473,8 +489,7 @@ else
                                 {
                                     <button style="border: none; background: none;" @onclick="()=>GetSelectedUser(user)">
                                         <div style="display: flex; margin-top: 20px; width: 200px; height: 40px; background: #EAEAEA; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); border-radius: 10px;">
-                                            <image style="width: 15px; height: 15px; margin-left: 10px; margin-right: 10px; margin-top:auto; margin-bottom:auto;" src="/Resources/Images/user.png"></image>
-                                            @* <image style="width: 15px; height: 15px;" src="@post.User.ProfilePhoto"></image> *@
+                                            <img style="width: 20px; height: 20px; margin-left: 10px; margin-right: 10px; margin-top:auto; margin-bottom:auto;" src="@user.ProfilePhoto" />
                                             <p style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; margin-top:auto; margin-bottom:auto;">@user.Username</p>
                                         </div>
                                     </button>
@@ -496,8 +511,7 @@ else
                                 {
                                     <button style="border: none; background: none;" @onclick="()=>GetSelectedUser(user)">
                                         <div style="display: flex; margin-top: 20px; width: 200px; height: 40px; background: #EAEAEA; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); border-radius: 10px;">
-                                            <image style="width: 15px; height: 15px; margin-left: 10px; margin-right: 10px; margin-top:auto; margin-bottom:auto;" src="/Resources/Images/user.png"></image>
-                                            @* <image style="width: 15px; height: 15px;" src="@post.User.ProfilePhoto"></image> *@
+                                            <img style="width: 20px; height: 20px; margin-left: 10px; margin-right: 10px; margin-top:auto; margin-bottom:auto;" src="@user.ProfilePhoto" />
                                             <p style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; margin-top:auto; margin-bottom:auto;">@user.Username</p>
                                         </div>
                                     </button>
@@ -515,35 +529,7 @@ else
 @code {
     [Parameter] public User user { get; set; }
 
-
-    private string UploadResult;
-
-    private async Task OnInputFileChange(InputFileChangeEventArgs e)
-    {
-        var file = e.File;
-
-        if (file != null)
-        {
-            using (var content = new MultipartFormDataContent())
-            {
-                content.Add(new StreamContent(file.OpenReadStream()), "file", file.Name);
-
-                var response = await Http.PostAsync("api/profile/upload", content);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    UploadResult = "File uploaded successfully.";
-                }
-                else
-                {
-                    UploadResult = "File upload failed.";
-                }
-            }
-        }
-    }
-
-
-
+    private string imageBase64;
 
     private string activeTab = "1";
     private string personalDetails_tab = "1";
@@ -575,6 +561,7 @@ else
     private bool isEditingAge = false;
     private string tmpAge;
     private bool isEditingPassword = false;
+    private bool isEditingPicture = false;
     private string newPassword = "";
 
     List<Post> userPosts { get; set; }
@@ -597,7 +584,6 @@ else
             string[] followingList = loggedOnUser.Following.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 
             isFollowedByLoggedOnUser = followingList.Contains(user.Id.ToString());
-
         }
 
         if (loggedOnUser.Id == user.Id)
@@ -611,9 +597,20 @@ else
 
         editedUser = new User(user);
         tmpAge = editedUser.Age.ToString();
-        // ProfileImagePath = await Http.GetStringAsync("https://yourserver/api/user/profileimage");
-        //ProfileImagePath = await Http.GetStringAsync("C:\\Users\\sharo\\source\\repos\\KeepiRepo\\Keepi\\Server\\API\\DefaultUserImage.png");
-        ProfileImagePath = "/Resources/Images/user.png";
+
+
+        // var res = await profileRepository.GetUserProfileImagePath(user.Id);
+        // if (res != null && res[0] != null)
+        // {
+        //     ProfileImagePath = res[0];
+        //     Console.WriteLine(ProfileImagePath);
+        // }
+        // else
+        // {
+        //     ProfileImagePath = "/Resources/Images/user.png";
+        // }
+        Console.WriteLine(user.ProfilePhoto);
+        ProfileImagePath = user.ProfilePhoto;
 
         userPosts = await postRepository.GetPostsByUserId(user.Id);
         if (userPosts != null)
@@ -630,6 +627,41 @@ else
             followingNum = followingList.Count;
 
         activeTab = personalDetails_tab;
+    }
+
+    async Task OnFileChange(InputFileChangeEventArgs e)
+    {
+        var imagesFiles = e.GetMultipleFiles();
+
+        foreach (var imageFile in imagesFiles)
+        {
+            var buffer = new byte[imageFile.Size];
+            await imageFile.OpenReadStream().ReadAsync(buffer);
+            imageBase64 = Convert.ToBase64String(buffer);
+            var response = await Http.PostAsJsonAsync("api/profile", new ImageUploadModel { UserId = user.Id, ImageBase64 = imageBase64 });
+
+            if (response.IsSuccessStatusCode)
+            {
+                var returnedUser = await response.Content.ReadFromJsonAsync<User>();
+
+                Console.WriteLine(returnedUser.Username);
+                Console.WriteLine(returnedUser.ProfilePhoto);
+                await JS.InvokeVoidAsync("localStorageHelper.remove", "user");
+                await JS.InvokeVoidAsync("localStorageHelper.save", "user", returnedUser);
+                //user = returnedUser;
+                //var imageUrl = await response.Content.ReadAsStringAsync();
+                //ProfileImagePath = imageUrl; // שמירת ה-URL של התמונה
+                NavManager.NavigateTo(NavManager.Uri, true);
+            }
+            else
+            {
+                // טיפול בשגיאה
+            }
+
+            StateHasChanged();
+        }
+
+        isEditingPicture = false;
     }
 
     private void SetActiveTab(string tabName)
@@ -669,7 +701,8 @@ else
 
     private void EditProfilePicture()
     {
-        
+        isEditingPicture = true;
+        // imageBase64 = null;
     }
 
     private async Task SaveEditFirstName()
@@ -838,29 +871,10 @@ else
         isEditingPassword = false;
         newPassword = "";
     }
-    // private void HandleSelected(InputFileChangeEventArgs e)
-    // {
-    //     selectedFile = e.File;
-    // }
 
-    private async Task UploadFile()
+    private void CancelEditProfilePicture()
     {
-        if (selectedFile != null)
-        {
-            using var content = new MultipartFormDataContent();
-            using var fileStream = selectedFile.OpenReadStream(maxAllowedSize: 1024 * 1024 * 15);
-            using var fileContent = new StreamContent(fileStream);
-            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(selectedFile.ContentType);
-            content.Add(fileContent, "file", selectedFile.Name);
-
-            var response = await profileRepository.UploadProfileImage(content);
-            // var response = await Http.PostAsync("https://localhost:7149/api/upload_image", content);
-
-            // if (response.IsSuccessStatusCode)
-            // {
-            //     ProfileImagePath = await response.Content.ReadAsStringAsync();
-            // }
-        }
+        isEditingPicture = false;
     }
 
     private async Task FollowUser()

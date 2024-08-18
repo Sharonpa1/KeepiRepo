@@ -220,7 +220,7 @@
     private async Task SaveNewPost()
     {
         Console.WriteLine(postContent);
-        return;
+        // return;
         if (string.IsNullOrEmpty(selectedOption) || string.IsNullOrEmpty(postContent))
         {
             await JS.InvokeAsync<object>("alert", "Please fill in all the fields");

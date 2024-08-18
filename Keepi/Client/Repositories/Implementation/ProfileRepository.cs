@@ -15,10 +15,7 @@ namespace Keepi.Client.Repositories.Implementation
         {
         }
 
-        public async Task<object> UploadProfileImage(MultipartFormDataContent file) =>
-             await Post<MultipartFormDataContent>(URL + System.IO.Path.AltDirectorySeparatorChar + "upload_image", file);
-
-            public async Task<List<User>> EditFirstName(Guid userId, string newFirstName) =>
+        public async Task<List<User>> EditFirstName(Guid userId, string newFirstName) =>
              await Get<User>($"api/Profile/editFirstName/{userId}/{newFirstName}");
 
         public async Task<List<User>> EditLastName(Guid userId, string newLastName) =>
@@ -47,6 +44,9 @@ namespace Keepi.Client.Repositories.Implementation
         
         public async Task<List<User>> GetUserFollowingList(Guid userId) =>
              await Get<User>($"api/Profile/getFollowing/{userId}");
+              
+        public async Task<List<string>> GetUserProfileImagePath(Guid userId) =>
+             await Get<string>($"api/Profile/getProfilePath/{userId}");
 
     }
 

@@ -1,6 +1,8 @@
-﻿@using Keepi.Shared
+﻿@using Keepi.Client.Repositories.Interfaces
+@using Keepi.Shared
 @inject IJSRuntime JS
 @inject NavigationManager NavManager
+@inject INotificationsRepository notificationsRepository
 @using System.Timers
 
 <style>
@@ -51,9 +53,19 @@
             <image class="btn_img" src="/Resources/Images/home.png"></image>
         </button>
 
-        <button class="nav_btn" @onclick="NotificationsBtn">
-            <image class="btn_img" src="/Resources/Images/bell.png"></image>
-        </button>
+        @if (isNewNotification)
+        {
+            <button class="nav_btn" @onclick="NotificationsBtn">
+                <image class="btn_img" src="/Resources/Images/notification.png"></image>
+            </button>
+        }
+        else
+        {
+            <button class="nav_btn" @onclick="NotificationsBtn">
+                <image class="btn_img" src="/Resources/Images/bell.png"></image>
+            </button>
+        }
+
 
         <button class="nav_btn" @onclick="SearchBtn">
             <image class="btn_img" src="/Resources/Images/search.png"></image>
@@ -72,12 +84,13 @@
 
 @code {
     private bool isUserLoggedOn = false;
+    private bool isNewNotification = false;
     private Timer timer;
     User loggedOnUser;
 
     protected override async Task OnInitializedAsync()
     {
-        timer = new Timer(1000);
+        timer = new Timer(500);
         timer.Elapsed += OnTimerElapsed;
         timer.AutoReset = true;
         timer.Enabled = true;
@@ -87,6 +100,7 @@
     private void OnTimerElapsed(object sender, ElapsedEventArgs e)
     {
         GetUser();
+        CheckNotifications();
 
         if (loggedOnUser == null)
             isUserLoggedOn = false;
@@ -99,6 +113,18 @@
     private async Task GetUser()
     {
         loggedOnUser = await JS.InvokeAsync<User>("localStorageHelper.get", "user");
+    }
+
+    private async Task CheckNotifications()
+    {
+        if (loggedOnUser == null)
+            return;
+
+        var res = await notificationsRepository.CheckForNewNotifications(loggedOnUser.Id.ToString());
+        if (res != null && res.Count > 0)
+        {
+            isNewNotification = res[0];
+        }
     }
 
     private void LoginBtn()

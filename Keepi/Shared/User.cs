@@ -25,7 +25,6 @@ namespace Keepi.Shared
             Email = user.Email;
             City = user.City;
             PhoneNumber = user.PhoneNumber;
-            //BirthDate = user.BirthDate;
             Age = user.Age;
             ProfilePhoto = user.ProfilePhoto;
             Following = user.Following;
@@ -35,7 +34,7 @@ namespace Keepi.Shared
         }
 
       
-        public Guid Id { get; set; } = new Guid();
+        public Guid Id { get; set; }
         public string Username { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -43,12 +42,20 @@ namespace Keepi.Shared
         public string Email { get; set; }
         public string City { get; set; }
         public string PhoneNumber { get; set; }
-        //public DateTime BirthDate { get; set; } = DateTime.Now;
         public int Age { get; set; }
-        public string ProfilePhoto { get; set; } = ";";
+        public string ProfilePhoto { get; set; }
         public string Following { get; set; } = ";";
         public string Followers { get; set; } = ";";
         public int WalletCount { get; set; }
         public string SavedPosts { get; set; } = ";";
+
+
+        //private string _profilePhoto;
+        //public string ProfilePhoto
+        //{
+        //    get { return "/User Profiles/" + Id.ToString() + ".png"; }
+        //    set { _profilePhoto = value; }
+        //}
+
     }
 }

@@ -6,6 +6,7 @@ using Keepi.Server;
 using Keepi.Client.Communication;
 using Keepi.Client.Repositories.Interfaces;
 using Keepi.Client.Repositories.Implementation;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,20 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "User Profiles")),
+    RequestPath = "/User Profiles"
+});
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "Notifications Files")),
+    RequestPath = "/Notifications Files"
+});
 
 app.UseHttpsRedirection();
 

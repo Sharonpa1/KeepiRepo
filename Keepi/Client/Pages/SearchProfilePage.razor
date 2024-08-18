@@ -62,8 +62,7 @@ else
                     {
                         <button style="border: none; background: none;" @onclick="()=>GetSelectedUser(user)">
                             <div style="display: flex; margin-top: 20px; width: 200px; height: 40px; background: #EAEAEA; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); border-radius: 10px;">
-                                <image style="width: 15px; height: 15px; margin-left: 10px; margin-right: 10px; margin-top:auto; margin-bottom:auto;" src="/Resources/Images/user.png"></image>
-                                @* <image style="width: 15px; height: 15px;" src="@post.User.ProfilePhoto"></image> *@
+                                <img style="width: 20px; height: 20px; margin-left: 10px; margin-right: 10px; margin-top:auto; margin-bottom:auto;" src="@user.ProfilePhoto" />
                                 <p style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; margin-top:auto; margin-bottom:auto;">@user.Username</p>
                             </div>
                         </button>

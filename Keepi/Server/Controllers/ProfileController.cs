@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Keepi.Shared;
+using System.Security.Cryptography;
 
 namespace Keepi.Server.Controllers
 {
@@ -19,49 +20,80 @@ namespace Keepi.Server.Controllers
             _environment = environment;
         }
 
-        [HttpPost("upload_image")]
-        public async Task<List<bool>> UploadProfileImage()
+        //[HttpPost]
+        //public async Task<User> UploadImage([FromBody] ImageUploadModel model)
+        //{
+        //    if (model == null || string.IsNullOrEmpty(model.ImageBase64))
+        //    {
+        //        return null;
+        //    }
+
+        //    var base64Data = model.ImageBase64.Substring(model.ImageBase64.IndexOf(",") + 1);
+        //    var imageBytes = Convert.FromBase64String(base64Data);
+
+        //    var directory = Path.Combine(Directory.GetCurrentDirectory(), "User Profiles");
+        //    var filePath = Path.Combine(directory, $"{model.UserId}.png");
+
+        //    if (System.IO.File.Exists(filePath))
+        //    {
+        //        System.IO.File.Delete(filePath);
+        //    }
+
+        //    await System.IO.File.WriteAllBytesAsync(filePath, imageBytes);
+        //    var user = await _context.Users.FindAsync(model.UserId);
+        //    if (user != null)
+        //    {
+        //        user.ProfilePhoto = Path.Combine("User Profiles", $"{model.UserId}.png");
+        //        await _context.SaveChangesAsync();
+        //        return user;
+        //    }
+        //    //var relativePath = $"/images/{Path.GetFileName(filePath)}";
+        //    return null;
+        //}
+
+        [HttpPost]
+        public async Task<IActionResult> UploadImage([FromBody] ImageUploadModel model)
         {
-            var file = Request.Form.Files.FirstOrDefault();
-
-            if (file == null || file.Length == 0)
-                return new List<bool> { false };
-
-            var uploads = Path.Combine("C:\\Users\\sharo\\source\\repos\\KeepiRepo\\Keepi\\Server\\API\\UserUploads");
-            if (!Directory.Exists(uploads))
+            if (model == null || string.IsNullOrEmpty(model.ImageBase64))
             {
-                Directory.CreateDirectory(uploads);
+                return BadRequest("Invalid image data");
             }
 
-            var filePath = Path.Combine(uploads, file.FileName);
-            //var filePath = Path.Combine(uploads, userId);
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            var base64Data = model.ImageBase64.Substring(model.ImageBase64.IndexOf(",") + 1);
+            var imageBytes = Convert.FromBase64String(base64Data);
+
+            DateTime dateTime = DateTime.Now;
+            string name = model.UserId.ToString() + ";" + dateTime.ToString("dd_MM_yyyy_HH_mm");
+            var directory = Path.Combine(Directory.GetCurrentDirectory(), "User Profiles");
+            //var filePath = Path.Combine(directory, $"{model.UserId}.png");
+            var filePath = Path.Combine(directory, $"{name}.png");
+
+
+            string[] files = Directory.GetFiles(directory);
+            foreach (string f in files)
             {
-                await file.CopyToAsync(fileStream);
-            }
-
-            // כאן נוסיף את שמירת הנתיב למסד הנתונים
-            var userId = 1; // קבל את ה-userId מתוך ה-context או פרמטרים אחרים.
-            await UpdateUserProfileImageAsync(userId, filePath);
-
-            return new List<bool> { true };
-        }
-
-        [HttpGet("editUserName/{userId}/{newUserName}")]
-        public async Task<List<User>> EditUserName(Guid userId, string newUserName)
-        {
-            if (ModelState.IsValid)
-            {
-                var user = await _context.Users.FindAsync(userId);
-
-                if (user != null)
+                var n = Path.GetFileName(f);
+                if (n.Contains(model.UserId.ToString()))
                 {
-                    user.Username = newUserName;
-                    await _context.SaveChangesAsync();
-                    return new List<User> { user };
+                    System.IO.File.Delete(f);
                 }
             }
-            return new List<User> { };
+
+            //if (System.IO.File.Exists(filePath))
+            //{
+            //    System.IO.File.Delete(filePath);
+            //}
+
+            await System.IO.File.WriteAllBytesAsync(filePath, imageBytes);
+            var user = await _context.Users.FindAsync(model.UserId);
+            if (user != null)
+            {
+                //user.ProfilePhoto = Path.Combine("User Profiles", $"{model.UserId}.png");
+                user.ProfilePhoto = Path.Combine("User Profiles", $"{name}.png");
+                await _context.SaveChangesAsync();
+            }
+            //var relativePath = $"/images/{Path.GetFileName(filePath)}";
+            return Ok(user);
         }
 
         [HttpGet("editFirstName/{userId}/{newFirstName}")]
@@ -182,6 +214,9 @@ namespace Keepi.Server.Controllers
                     UserToFollow.Followers += _CurrentUserId + ";";
                     await _context.SaveChangesAsync();
 
+
+                    var a = await NotificationsHelper.AddNewNotification(UserToFollow.Id.ToString(), NotificationType.Follower, $"{CurrentUser.Username} started following you");
+
                     return new List<User> { CurrentUser };
                 }
 
@@ -297,35 +332,26 @@ namespace Keepi.Server.Controllers
             return null;
         }
 
-
-        public async Task UpdateUserProfileImageAsync(int userId, string filePath)
+        [HttpGet("getProfilePath/{userId}")]
+        public async Task<List<string>> GetUserProfileImagePath(Guid userId)
         {
-            var user = await _context.Users.FindAsync(userId);
-            if (user != null)
+            try
             {
-                user.ProfilePhoto = filePath;
-                await _context.SaveChangesAsync();
+                var filePath = Path.Combine("User Profiles", $"{userId}.png");
+                var directory = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+                if (System.IO.File.Exists(directory))
+                {
+                    return new List<string> { filePath };
+                }
+                return new List<string>();
             }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            return null;
         }
-
-        //[HttpPost("upload")]
-        //public async Task<IActionResult> UploadProfilePicture(IFormFile file)
-        //{
-        //    if (file == null || file.Length == 0)
-        //        return BadRequest("No file uploaded.");
-
-        //    var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-        //    var uploadPath = Path.Combine(_environment.WebRootPath, "profile-pictures", fileName);
-
-        //    using (var fileStream = new FileStream(uploadPath, FileMode.Create))
-        //    {
-        //        await file.CopyToAsync(fileStream);
-        //    }
-
-        //    //await _profileRepository.SaveProfilePicturePathAsync(fileName);
-
-        //    return Ok(new { Path = $"/profile-pictures/{fileName}" });
-        //}
 
     }
 

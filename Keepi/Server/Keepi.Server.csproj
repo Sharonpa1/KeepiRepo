@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="API\UserUploads\" />
+    <Folder Include="User Profiles\" />
   </ItemGroup>
 
 

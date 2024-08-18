@@ -78,8 +78,7 @@ else
                         <table style="border-bottom: none; width: 100%; background: #EAEAEA; border-top-left-radius: 10px; border-top-right-radius: 10px;">
                             <tr>
                                 <td style="width: 10%">
-                                    <image style="width: 15px; height: 15px; margin-left: 10px;" src="/Resources/Images/user.png"></image>
-                                    @* <image style="width: 15px; height: 15px;" src="@post.User.ProfilePhoto"></image> *@
+                                    <img style="width: 18px; height: 18px; margin-left: 5px;" src="@post.User.ProfilePhoto" />
                                 </td>
                                 <td style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">@post.User.Username</td>
                                 @if (post.UserId == user.Id)
@@ -102,9 +101,10 @@ else
                                         <button style="width: 20px; height: 20px; background:none; border: none; align-content:center;" @onclick="()=>SavePostToUserCollection(post.Id)">
                                             <image style="width: 15px; height: 15px;" src="/Resources/Images/unsaved.png"></image>
                                         </button>
-                                        @* <button style="width: 20px; height: 20px; background:none; border: none; align-content:center;" @onclick="()=>UnsavePostFromUserCollection(post.Id)">
-                        <image style="width: 15px; height: 15px;" src="/Resources/Images/saved.png"></image>
-                        </button> *@
+
+                                        <button style="width: 20px; height: 20px; background:none; border: none; align-content:center;" @onclick="()=>UnsavePostFromUserCollection(post.Id)">
+                                            <image style="width: 15px; height: 15px;" src="/Resources/Images/saved.png"></image>
+                                        </button>
                                     </td>
                                 }
                             </tr>

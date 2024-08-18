@@ -37,6 +37,19 @@ namespace Keepi.Server.Controllers
                 _context.Posts.Add(post);
                 await _context.SaveChangesAsync();
 
+                var user = await _context.Users.FindAsync(UserId);
+                if (user != null)
+                {
+                    string[] followers_id = user.Followers.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (followers_id.Length > 0)
+                    {
+                        foreach (var _id in followers_id)
+                        {
+                            var a = await NotificationsHelper.AddNewNotification(_id, NotificationType.Post, $"{user.Username} posted a new post");
+                        }
+                    }
+                }
+
                 return new List<Post>() { post };
 
             }

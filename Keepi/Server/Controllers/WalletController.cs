@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Keepi.Shared;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace Keepi.Server.Controllers
 {
@@ -104,6 +105,8 @@ namespace Keepi.Server.Controllers
                         user2.WalletCount += count;
 
                         await _context.SaveChangesAsync();
+
+                        var a = await NotificationsHelper.AddNewNotification(user2.Id.ToString(), NotificationType.Wallet, $"{user1.Username} deposited {count} coins into your wallet");
 
                         return new List<bool> { true };
                     }
