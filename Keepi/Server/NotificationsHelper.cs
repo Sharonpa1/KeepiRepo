@@ -22,9 +22,9 @@ namespace Keepi.Server
 
                 var initialData = new
                 {
-                    fileId = userId,
-                    isNewNotification = false,
-                    notifications = new List<object>()
+                    FileId = userId,
+                    IsNewNotification = false,
+                    Notifications = new List<object>()
                 };
 
                 var jsonContent = JsonSerializer.Serialize(initialData, new JsonSerializerOptions { WriteIndented = true });

@@ -1,6 +1,7 @@
 ﻿@page "/home"
 @using Keepi.Client.Repositories.Interfaces
 @using Keepi.Shared
+@inject HttpClient Http
 @inject IPostRepository postRepository
 @inject IJSRuntime JS
 
@@ -86,7 +87,7 @@
 </style>
 
 <table style="width: 100%; margin-top: 0px; background-image: url('/Resources/Images/home3.png'); background-size: cover; height: 100vh;">
-    <tr>
+    <tr style="height:200px;">
         <table style="width: 100%; margin-bottom: 30px; margin-top: 50px;">
             <tr>
                 <td style="width: 2%"></td>
@@ -134,7 +135,7 @@
             </tr>
         </table>
     </tr>
-    <tr align="center">
+    <tr align="center" style="height:30px; max-height: 30px">
         @if (!showNewPostComponent)
         {
             <td>
@@ -176,6 +177,8 @@
         }
     </tr>
     <tr align="center">
+        <h3 style="font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">@selectedFilter</h3>
+        <br />
         <PostComponent postsList="@_filteredPostsList" />
     </tr>
 </table>
@@ -185,6 +188,7 @@
     public List<Post> _postsList { get; set; }
     public List<Post> _filteredPostsList { get; set; }
     User user;
+    string selectedFilter = "All categories";
 
     private bool showNewPostComponent;
     private string selectedOption;
@@ -219,17 +223,19 @@
 
     private async Task SaveNewPost()
     {
-        Console.WriteLine(postContent);
-        // return;
         if (string.IsNullOrEmpty(selectedOption) || string.IsNullOrEmpty(postContent))
         {
             await JS.InvokeAsync<object>("alert", "Please fill in all the fields");
             return;
         }
-        List<Post> response = await postRepository.AddNewPost(selectedOption, postContent, user.Id);
-        if (response != null && response.Count > 0)
+
+        var response = await Http.PostAsJsonAsync("api/post", new string[] { selectedOption, postContent, user.Id.ToString() });
+
+        if (response != null)
         {
             showNewPostComponent = false;
+            selectedOption = Categories[0];
+            postContent = string.Empty; 
             await JS.InvokeAsync<object>("alert", "New post created successfully!");
 
             //NavManager.NavigateTo(NavManager.Uri, forceLoad: true);
@@ -237,16 +243,44 @@
         else
         {
             showNewPostComponent = false;
+            selectedOption = Categories[0];
+            postContent = string.Empty; 
             await JS.InvokeAsync<object>("alert", "Failed to save new post");
-
-            //TODO failed to save...
         }
 
     }
 
+
+    // private async Task SaveNewPost()
+    // {
+    //     Console.WriteLine(postContent);
+    //     // return;
+    //     if (string.IsNullOrEmpty(selectedOption) || string.IsNullOrEmpty(postContent))
+    //     {
+    //         await JS.InvokeAsync<object>("alert", "Please fill in all the fields");
+    //         return;
+    //     }
+    //     List<Post> response = await postRepository.AddNewPost(selectedOption, postContent, user.Id);
+    //     if (response != null && response.Count > 0)
+    //     {
+    //         showNewPostComponent = false;
+    //         await JS.InvokeAsync<object>("alert", "New post created successfully!");
+
+    //         //NavManager.NavigateTo(NavManager.Uri, forceLoad: true);
+    //     }
+    //     else
+    //     {
+    //         showNewPostComponent = false;
+    //         await JS.InvokeAsync<object>("alert", "Failed to save new post");
+
+    //         //TODO failed to save...
+    //     }
+
+    // }
+
     private void CancelNewPost()
     {
-        selectedOption = null;
+        selectedOption = Categories[0];
         postContent = string.Empty;
         showNewPostComponent = false;
     }
@@ -257,28 +291,35 @@
         {
             case 0:
                 _filteredPostsList = _postsList;
+                selectedFilter = "All categories";
                 break;
             case 1:
                 _filteredPostsList = _postsList.Where(p => p.Category == Categories[0]).ToList();
-                StateHasChanged();
+                selectedFilter = "Animal care services";
                 break;
             case 2:
                 _filteredPostsList = _postsList.Where(p => p.Category == Categories[1]).ToList();
+                selectedFilter = "Baby and child care services";
                 break;
             case 3:
                 _filteredPostsList = _postsList.Where(p => p.Category == Categories[2]).ToList();
+                selectedFilter = "Elderly care services";
                 break;
             case 4:
                 _filteredPostsList = _postsList.Where(p => p.Category == Categories[3]).ToList();
+                selectedFilter = "Event security";
                 break;
             case 5:
                 _filteredPostsList = _postsList.Where(p => p.Category == Categories[4]).ToList();
+                selectedFilter = "Security of private buildings";
                 break;
             case 6:
                 _filteredPostsList = _postsList.Where(p => p.Category == Categories[5]).ToList();
+                selectedFilter = "Security of public buildings";
                 break;
             case 7:
                 _filteredPostsList = _postsList.Where(p => p.Category == Categories[6]).ToList();
+                selectedFilter = "Storage services";
                 break;
 
         }

@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Keepi.Shared;
 using Microsoft.Extensions.Hosting;
 using System.Collections.Generic;
+using System.Text.Json;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Keepi.Server.Controllers
 {
@@ -19,6 +21,52 @@ namespace Keepi.Server.Controllers
             _context = context;
         }
 
+        [HttpPost]
+        public async Task<IActionResult> NewPost([FromBody] string[] model)
+        {
+            try
+            {
+                string Category = model[0];
+                string Text = model[1];
+                Guid UserId = Guid.Parse(model[2]);
+
+                if (string.IsNullOrEmpty(Category) || string.IsNullOrEmpty(Text) || string.IsNullOrEmpty(model[2]))
+                {
+                    return BadRequest("Invalid data");
+                }
+
+                var post = new Post
+                {
+                    Id = new Guid(),
+                    Date = DateTime.Now,
+                    Category = Category,
+                    Content = Text,
+                    UserId = UserId
+                };
+
+                _context.Posts.Add(post);
+                await _context.SaveChangesAsync();
+
+                var user = await _context.Users.FindAsync(UserId);
+                if (user != null)
+                {
+                    string[] followers_id = user.Followers.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (followers_id.Length > 0)
+                    {
+                        foreach (var _id in followers_id)
+                        {
+                            var a = await NotificationsHelper.AddNewNotification(_id, NotificationType.Post, $"{user.Username} posted a new post");
+                        }
+                    }
+                }
+
+                return Ok(post);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
 
         [HttpGet("newPost/{Category}/{Text}/{UserId}")]
         public async Task<List<Post>> AddNewPost(string Category, string Text, Guid UserId)

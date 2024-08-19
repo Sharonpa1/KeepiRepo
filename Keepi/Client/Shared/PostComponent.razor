@@ -33,7 +33,7 @@ else if (postsList.Count == 0)
 }
 else
 {
-    foreach (var post in postsList)
+    foreach (var post in postsList.OrderByDescending(p => p.Date))
     {
         <div style="border: none; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); border-radius:10px; margin-bottom: 10px; width: 500px; height: auto;">
             <table style="width: 100%">
@@ -118,7 +118,7 @@ else
                     <tr align="center" style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">@post.Category</tr>
                     <tr>
                         <td style="width:100%;">
-                            <p style="margin-left: 10px; margin-right: 10px;">@(post.Content.Replace("\n", "<br />"))</p>
+                            <p style="margin-left: 10px; margin-right: 10px; white-space: pre-line;">@post.Content</p>
                         </td>
                     </tr>
 

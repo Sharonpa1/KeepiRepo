@@ -23,8 +23,8 @@ namespace Keepi.Client.Repositories.Implementation
         public async Task<List<bool>> AddMessageToChat(string fileName, string userId, string message) =>
              await Get<bool>($"api/Chat/addMessageToChat/{fileName}/{userId}/{message}");
    
-        public async Task<List<ChatData>> ReadChatFile(string fileName) =>
-             await Get<ChatData>($"api/Chat/readChatFile/{fileName}");
+        public async Task<List<ChatData>> ReadChatFile(string fileName, string userId) =>
+             await Get<ChatData>($"api/Chat/readChatFile/{fileName}/{userId}");
    
         public async Task<List<Chat>> GetUserChats(string user) =>
              await Get<Chat>($"api/Chat/getUserChats/{user}");

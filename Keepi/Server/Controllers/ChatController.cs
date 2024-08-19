@@ -20,6 +20,76 @@ namespace Keepi.Server.Controllers
             _context = context;
         }
 
+        [HttpPost]
+        public async Task<IActionResult> SendMessage([FromBody] string[] model)
+        {
+            string fileName = model[0];
+            string userId = model[1];
+            string message = model[2];
+            
+            if (string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(message))
+            {
+                return BadRequest("Invalid data");
+            }
+
+            try
+            {
+                var chatFilePath = Path.Combine(chatFilesDirectory, $"{fileName}.json");
+
+                if (System.IO.File.Exists(chatFilePath))
+                {
+                    var chatData = JsonSerializer.Deserialize<ChatData>(System.IO.File.ReadAllText(chatFilePath));
+
+                    //string[] users = fileName.Split(';');
+                    User sender = null;
+                    User receiver = null;
+
+                    if (chatData != null)
+                    {
+                        Console.WriteLine("1" + chatData.ChatId);
+                        //if (users[0] == userId)
+                        if (userId == chatData.User1_Id)
+                        {
+                            sender = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == chatData.User1_Id);
+                            receiver = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == chatData.User2_Id);
+
+                            chatData.IsNewMessages_user2 = true;
+                        }
+                        //else if (users[1] == userId)
+                        else if (userId == chatData.User2_Id)
+                        {
+                            sender = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == chatData.User2_Id);
+                            receiver = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == chatData.User1_Id);
+
+                            chatData.IsNewMessages_user1 = true;
+                        }
+
+                        chatData.Messages.Add(new ChatMessage
+                        {
+                            UserId = userId,
+                            Content = message,
+                            Timestamp = DateTime.UtcNow
+                        });
+
+                        var updatedJsonContent = JsonSerializer.Serialize(chatData, new JsonSerializerOptions { WriteIndented = true });
+                        System.IO.File.WriteAllText(chatFilePath, updatedJsonContent);
+                        Console.WriteLine("2" + chatData.ChatId);
+
+                        if (sender != null && receiver != null)
+                        {
+                            var a = NotificationsHelper.AddNewNotification(receiver.Id.ToString(), NotificationType.Message, $"{sender.Username} sent you a message");
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+
+            return Ok(true);
+        }
+
         [HttpGet("createNewChat/{user1}/{user2}")]
         public async Task<List<Chat>> CreateNewChatFile(string user1, string user2)
         {
@@ -50,8 +120,12 @@ namespace Keepi.Server.Controllers
                 {
                     var initialChatData = new
                     {
-                        chatId = fileName_option1,
-                        messages = new List<object>()
+                        ChatId = fileName_option1,
+                        User1_Id = user1,
+                        User2_Id = user2,
+                        IsNewMessages_user1 = false,
+                        IsNewMessages_user2 = false,
+                        Messages = new List<object>()
                     };
 
                     var jsonContent = JsonSerializer.Serialize(initialChatData, new JsonSerializerOptions { WriteIndented = true });
@@ -92,8 +166,29 @@ namespace Keepi.Server.Controllers
                 {
                     var chatData = JsonSerializer.Deserialize<ChatData>(System.IO.File.ReadAllText(chatFilePath));
 
+                    //string[] users = fileName.Split(';');
+                    User sender = null;
+                    User receiver = null;
+
                     if (chatData != null)
                     {
+                        //if (users[0] == userId)
+                        if (userId == chatData.User1_Id)
+                        {
+                            sender = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == chatData.User1_Id);
+                            receiver = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == chatData.User2_Id);
+
+                            chatData.IsNewMessages_user2 = true;
+                        }
+                        //else if (users[1] == userId)
+                        else if (userId == chatData.User2_Id)
+                        {
+                            sender = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == chatData.User2_Id);
+                            receiver = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == chatData.User1_Id);
+
+                            chatData.IsNewMessages_user1 = true;
+                        }
+
                         chatData.Messages.Add(new ChatMessage
                         {
                             UserId = userId,
@@ -103,20 +198,6 @@ namespace Keepi.Server.Controllers
 
                         var updatedJsonContent = JsonSerializer.Serialize(chatData, new JsonSerializerOptions { WriteIndented = true });
                         System.IO.File.WriteAllText(chatFilePath, updatedJsonContent);
-
-                        string[] users = fileName.Split(';');
-                        User sender = null;
-                        User receiver = null;
-                        if (users[0] == userId)
-                        {
-                            sender = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == users[0]);
-                            receiver = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == users[1]);
-                        }
-                        else if (users[1] == userId)
-                        {
-                            sender = await _context.Users.FirstOrDefaultAsync(u=> u.Id.ToString() == users[1]);
-                            receiver = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == users[0]);
-                        }
 
                         if (sender != null && receiver != null)
                         {
@@ -130,24 +211,44 @@ namespace Keepi.Server.Controllers
                 return null;
             }
 
-
             return new List<bool> { true };
         }
 
-        [HttpGet("readChatFile/{fileName}")]
-        public async Task<List<ChatData>> ReadChatFile(string fileName)
+        [HttpGet("readChatFile/{fileName}/{userId}")]
+        public async Task<List<ChatData>> ReadChatFile(string fileName, string userId)
         {
             var chatFilePath = Path.Combine(chatFilesDirectory, $"{fileName}.json");
-
+           
             if (System.IO.File.Exists(chatFilePath))
             {
                 var chatData = JsonSerializer.Deserialize<ChatData>(System.IO.File.ReadAllText(chatFilePath));
                 if (chatData != null)
+                {
+                    //string[] users = fileName.Split(';');
+
+                    if (userId == chatData.User1_Id)
+                    {
+                        if (chatData.IsNewMessages_user1)
+                        {
+                            chatData.IsNewMessages_user1 = false;
+                            var updatedJsonContent = JsonSerializer.Serialize(chatData, new JsonSerializerOptions { WriteIndented = true });
+                            System.IO.File.WriteAllText(chatFilePath, updatedJsonContent);
+                        }
+                    }
+                    else if (userId == chatData.User2_Id)
+                    {
+                        if (chatData.IsNewMessages_user2)
+                        {
+                            chatData.IsNewMessages_user2 = false;
+                            var updatedJsonContent = JsonSerializer.Serialize(chatData, new JsonSerializerOptions { WriteIndented = true });
+                            System.IO.File.WriteAllText(chatFilePath, updatedJsonContent);
+                        }
+                    }
                     return new List<ChatData> { chatData };
+                }
                 else
                 {
                     return null;
-
                 }
             }
 
@@ -176,7 +277,17 @@ namespace Keepi.Server.Controllers
                                 User u = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == tmp[1]);
                                 if (u != null)
                                 {
-                                    chats.Add(new Chat() { User = u, FileName = fileName });
+                                    Chat c = new Chat() { User = u, FileName = fileName };
+
+                                    var chatFilePath = Path.Combine(chatFilesDirectory, $"{fileName}.json");
+                                    if (System.IO.File.Exists(chatFilePath))
+                                    {
+                                        var chatData = JsonSerializer.Deserialize<ChatData>(System.IO.File.ReadAllText(chatFilePath));
+                                        if (chatData != null)
+                                            c.Data = chatData;
+                                    }
+                                    
+                                    chats.Add(c);
                                 }
                             }
                             else if (tmp[1] == user)
@@ -184,7 +295,17 @@ namespace Keepi.Server.Controllers
                                 User u = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == tmp[0]);
                                 if (u != null)
                                 {
-                                    chats.Add(new Chat() { User = u, FileName = fileName });
+                                    Chat c = new Chat() { User = u, FileName = fileName };
+
+                                    var chatFilePath = Path.Combine(chatFilesDirectory, $"{fileName}.json");
+                                    if (System.IO.File.Exists(chatFilePath))
+                                    {
+                                        var chatData = JsonSerializer.Deserialize<ChatData>(System.IO.File.ReadAllText(chatFilePath));
+                                        if (chatData != null)
+                                            c.Data = chatData;
+                                    }
+
+                                    chats.Add(c);
                                 }
                             }
                         }
