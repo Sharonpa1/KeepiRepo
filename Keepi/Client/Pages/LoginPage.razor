@@ -57,6 +57,9 @@
                         <button class="loginBtn" @onclick=Login>LOGIN</button>
                     </tr>
                     <tr>
+                        <h6 style="margin-top: 50px; text-align:center; font-weight:bold; color: black;">@loading</h6>
+                    </tr>
+                    <tr>
                         <h6 style="margin-top: 50px; text-align:center; font-weight:bold; color: gray;">Don't have an account?</h6>
                     </tr>
                     <tr>
@@ -74,23 +77,28 @@
     private string email;
     private string userName;
     private string password;
+    private string loading;
 
     private async Task Login()
     {
         if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
         {
             await JS.InvokeAsync<object>("alert", "Please enter user name and password");
+            loading = "";
             return;
         }
 
+        loading = "Loading...";
         List<User> response = await loginRepository.Login(userName, password);
         if (response == null)
         {
             await JS.InvokeAsync<object>("alert", "An error occured while login");
+            loading = "";
         }
         else if (response.Count == 0)
         {
             await JS.InvokeAsync<object>("alert", "Invalid user name or password");
+            loading = "";
         }
         else
         {
