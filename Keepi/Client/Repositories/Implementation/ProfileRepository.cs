@@ -48,6 +48,9 @@ namespace Keepi.Client.Repositories.Implementation
         public async Task<List<string>> GetUserProfileImagePath(Guid userId) =>
              await Get<string>($"api/Profile/getProfilePath/{userId}");
 
+        public async Task<List<User>> GetUser(Guid userId) =>
+             await Get<User>($"api/Profile/getUser/{userId}");
+
     }
 
 }

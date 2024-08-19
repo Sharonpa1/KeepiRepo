@@ -885,6 +885,7 @@ else
             await JS.InvokeVoidAsync("localStorageHelper.remove", "user");
             await JS.InvokeVoidAsync("localStorageHelper.save", "user", response[0]);
             isFollowedByLoggedOnUser = true;
+            followersNum += 1;
         }
     }
 
@@ -898,6 +899,7 @@ else
                 await JS.InvokeVoidAsync("localStorageHelper.remove", "user");
                 await JS.InvokeVoidAsync("localStorageHelper.save", "user", response[0]);
                 isFollowedByLoggedOnUser = false;
+                followersNum -= 1;
             }
         }
     }
@@ -925,6 +927,13 @@ else
             if (response[0])
             {
                 await JS.InvokeAsync<object>("alert", "The transfer was made successfully");
+                var u = await profileRepository.GetUser(loggedOnUser.Id);
+                if (u != null)
+                {
+                    loggedOnUser = u[0];
+                    await JS.InvokeVoidAsync("localStorageHelper.remove", "user");
+                    await JS.InvokeVoidAsync("localStorageHelper.save", "user", loggedOnUser);
+                }
             }
             else
             {

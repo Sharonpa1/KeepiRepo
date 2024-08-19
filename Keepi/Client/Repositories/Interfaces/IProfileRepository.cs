@@ -16,5 +16,6 @@ namespace Keepi.Client.Repositories.Interfaces
         Task<List<User>> GetUserFollowersList(Guid userId);
         Task<List<User>> GetUserFollowingList(Guid userId);
         Task<List<string>> GetUserProfileImagePath(Guid userId);
+        Task<List<User>> GetUser(Guid userId);
     }
 }

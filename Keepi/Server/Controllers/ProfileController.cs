@@ -353,6 +353,25 @@ namespace Keepi.Server.Controllers
             return null;
         }
 
+        [HttpGet("getUser/{userId}")]
+        public async Task<List<User>> GetUser(Guid userId)
+        {
+            try
+            {
+                User user = _context.Users.FirstOrDefault(u => u.Id == userId);
+               
+                if (user != null)
+                {
+                    return new List<User> { user };
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            return null;
+        }
+
     }
 
 }
